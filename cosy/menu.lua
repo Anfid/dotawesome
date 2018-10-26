@@ -1,0 +1,34 @@
+---------------------------------------------------------------------------
+--- Menu
+-- Definitions for awful.menu
+--
+-- @module cosy.menu
+---------------------------------------------------------------------------
+
+local awful = require("awful")
+local beautiful = require("beautiful")
+local global = require("global")
+
+local menu = {}
+
+local launcher_power = {
+   { "Shutdown", "shutdown 0"},
+   { "Reboot",   "shutdown -r 0" },
+}
+
+local launcher_awesome = {
+   { "Restart",     awesome.restart },
+   { "Hotkeys",     function() return false, hotkeys_popup.show_help end},
+   { "Edit config", global.editor_cmd .. " " .. awesome.conffile },
+   { "Quit",        function() awesome.quit() end},
+}
+
+menu.main = awful.menu({
+    items = {
+        { "Power",    launcher_power,   beautiful.awesome_icon },
+        { "Awesome",  launcher_awesome, beautiful.awesome_icon },
+        { "Terminal", global.terminal },
+    }
+})
+
+return menu
