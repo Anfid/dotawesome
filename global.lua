@@ -5,11 +5,16 @@
 -- @module global
 ---------------------------------------------------------------------------
 
-local global = {}
+local global = {
+    modkey      = "Mod4",
+    panel_size  = 45,
+    terminal    = "kitty",
+    editor      = os.getenv("EDITOR") or "vim",
+    explorer    = "ranger",
+}
 
-global.modkey = "Mod4"
-global.terminal = "kitty"
-global.editor = os.getenv("EDITOR") or "vim"
-global.editor_cmd = global.terminal .. " -e " .. global.editor
+global.editor_cmd   = global.terminal .. " -e " .. global.editor
+global.explorer_cmd = global.terminal .. " -e " .. global.explorer
+
 
 return global

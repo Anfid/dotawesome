@@ -12,7 +12,7 @@ theme.wallpaper = default_zen_path .. "zenburn/zenburn-background.png"
 -- }}}
 
 -- {{{ Styles
-theme.font      = "sans 10"
+theme.font      = "Iosevka 12"
 
 -- {{{ Colors
 theme.fg_normal  = "#DCDCCC"

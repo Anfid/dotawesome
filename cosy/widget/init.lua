@@ -10,7 +10,9 @@ local gears = require("gears")
 local menu = require("cosy.menu")
 local wibox = require("wibox")
 
-local widget = {}
+local widget = {
+    desktop = require("cosy.widget.desktop")
+}
 
 -- Launcher menu
 widget.launcher = awful.widget.launcher({
@@ -20,7 +22,7 @@ widget.launcher = awful.widget.launcher({
 
 -- Textclock
 widget.textclock = {}
-widget.textclock.widget = wibox.widget.textclock("<span font=\"sans 8\">%H:%M\n%a\n%d.%m</span>")
+widget.textclock.widget = wibox.widget.textclock("<span font=\"Iosevka 10\">%a\n%H:%M\n%d.%m</span>")
 widget.textclock.tooltip = awful.tooltip({
     objects = { widget.textclock.widget },
     timer_function = function()

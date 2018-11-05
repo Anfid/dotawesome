@@ -1,8 +1,13 @@
+-- Capture variables
+local awesome = awesome
+local client = client
+local root = root
+local tag = tag
+local screen = screen
 -- Standard awesome library
 local gears = require("gears")
 local awful = require("awful")
 require("awful.autofocus")
-awesome.set_preferred_icon_size(35)
 
 -- Theme handling library
 local beautiful = require("beautiful")
@@ -19,13 +24,17 @@ naughty.config.defaults['icon_size'] = 64
 local cosy = require("cosy")
 local global = require("global")
 
+awesome.set_preferred_icon_size(global.panel_size)
+
 -- {{{ Error handling
 -- Check if awesome encountered an error during startup and fell back to
 -- another config (This code will only ever execute for the fallback config)
 if awesome.startup_errors then
-    naughty.notify({ preset = naughty.config.presets.critical,
-                     title = "Oops, there were errors during startup!",
-                     text = awesome.startup_errors })
+    naughty.notify({
+            preset = naughty.config.presets.critical,
+            title = "Oops, there were errors during startup!",
+            text = awesome.startup_errors,
+        })
 end
 
 -- Handle runtime errors after startup
@@ -36,16 +45,18 @@ do
         if in_error then return end
         in_error = true
 
-        naughty.notify({ preset = naughty.config.presets.critical,
-                         title = "Oops, an error happened!",
-                         text = tostring(err) })
+        naughty.notify({
+                preset = naughty.config.presets.critical,
+                title = "oops, an error happened!",
+                text = tostring(err),
+            })
         in_error = false
     end)
 end
 -- }}}
 
 -- {{{ Variable definitions
-floatgeoms = {}
+local floatgeoms = {}
 
 -- Table of layouts to cover with awful.layout.inc, order matters.
 awful.layout.layouts = {
@@ -84,7 +95,7 @@ end
 -- }}}
 
 -- Keyboard map indicator and switcher
-keyboardlayout = awful.widget.keyboardlayout()
+local keyboardlayout = awful.widget.keyboardlayout()
 
 -- {{{ Wibar
 -- Create a wibox for each screen and add it
@@ -152,6 +163,8 @@ awful.screen.connect_for_each_screen(function(s)
     -- Each screen has its own tag table.
     awful.tag({ "1", "2", "3", "4", "5", "6", "7", "8", "9" }, s, awful.layout.layouts[1])
 
+    cosy.widget.desktop.cava(s)
+
     -- Create an imagebox widget which will contain an icon indicating which layout we're using.
     -- We need one layoutbox per screen.
     s.layoutbox = awful.widget.layoutbox(s)
@@ -161,20 +174,35 @@ awful.screen.connect_for_each_screen(function(s)
                            awful.button({ }, 4, function () awful.layout.inc( 1) end),
                            awful.button({ }, 5, function () awful.layout.inc(-1) end)))
     -- Create a taglist widget
-    s.taglist = awful.widget.taglist(s, awful.widget.taglist.filter.noempty, taglist_buttons, {align = "center"}, nil, wibox.layout.fixed.vertical())
+    s.taglist = awful.widget.taglist(
+        s,
+        awful.widget.taglist.filter.noempty,
+        taglist_buttons,
+        {align = "center"},
+        nil,
+        wibox.layout.fixed.vertical()
+    )
 
     -- Create a tasklist widget
-    s.tasklist = awful.widget.tasklist(s, awful.widget.tasklist.filter.currenttags, tasklist_buttons, {align = "center", disable_task_name = true}, nil, wibox.layout.fixed.vertical())
+    s.tasklist = awful.widget.tasklist(
+        s,
+        awful.widget.tasklist.filter.currenttags,
+        tasklist_buttons,
+        {align = "center", disable_task_name = true},
+        nil,
+        wibox.layout.fixed.vertical()
+    )
 
     -- Create the wibox
-    s.wibox = awful.wibar { screen = s, position = "left", width = 35 }
+    s.wibox = awful.wibar { screen = s, position = "left", width = global.panel_size }
+
+    s.systray = wibox.widget.systray()
 
     -- Add widgets to the wibox
     s.wibox:setup {
         layout = wibox.layout.align.vertical,
         { -- Left widgets
             layout = wibox.layout.fixed.vertical,
-            cosy.widget.launcher,
             s.taglist,
             cosy.widget.promptbox,
         },
@@ -182,7 +210,7 @@ awful.screen.connect_for_each_screen(function(s)
         { -- Right widgets
             layout = wibox.layout.fixed.vertical,
             keyboardlayout,
-            wibox.widget.systray(),
+            --s.systray,
             cosy.widget.textclock,
             s.layoutbox,
         },
@@ -251,7 +279,7 @@ awful.rules.rules = {
 -- {{{ Functions
 -- Toggle titlebar on or off depending on s. Creates titlebar if it doesn't exist
 local function manage_titlebar(c)
-    show = c.floating or awful.layout.get(c.screen) == awful.layout.suit.floating
+    local show = c.floating or awful.layout.get(c.screen) == awful.layout.suit.floating
     if show then
         if c.titlebar == nil then
             c:emit_signal("request::titlebars", "rules", {})
@@ -330,9 +358,6 @@ client.connect_signal("property::geometry", function(c)
 end)
 
 client.connect_signal("unmanage", function(c) floatgeoms[c.window] = nil end)
-
-client.connect_signal("manage", function(c)
-end)
 
 -- Add a titlebar if titlebars_enabled is set to true in the rules.
 client.connect_signal("request::titlebars", function(c)

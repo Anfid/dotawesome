@@ -4,12 +4,13 @@ local hotkeys_popup = require("awful.hotkeys_popup").widget
 local menu = require("cosy.menu")
 local global = require("global")
 
+local client = client
+local awesome = awesome
+
 local modkey = global.modkey
 
 local bindings = {
     modkey = modkey,
-    mouse = nil,
-    keyboard = nil,
 }
 
 bindings.mouse = {
@@ -108,19 +109,13 @@ bindings.keyboard = {
                   end,
                   {description = "restore minimized", group = "client"}),
 
-        awful.key({ modkey }, "r",
-                  function ()
-                      awful.prompt.run {
-                        prompt       = "Run Lua code: ",
-                        textbox      = awful.screen.focused().mypromptbox.widget,
-                        exe_callback = awful.util.eval,
-                        history_path = awful.util.get_cache_dir() .. "/history_eval"
-                      }
-                  end,
-                  {description = "lua execute prompt", group = "awesome"}),
+        awful.key({ modkey }, "e", function() awful.spawn.with_shell(global.explorer_cmd) end,
+                  {description = "open file explorer", group = "launcher"}),
 
         -- Rofi
-        awful.key({ modkey }, "x", function() awful.spawn("rofi -modi drun,run -show run") end,
+        awful.key({ modkey }, "x", function()
+            awful.spawn("rofi -modi drun,run -show run -location 1 -xoffset " .. global.panel_size)
+        end,
                   {description = "run rofi launcher", group = "launcher"}),
 
         -- Screen lock
