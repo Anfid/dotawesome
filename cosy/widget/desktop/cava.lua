@@ -12,12 +12,17 @@ local posix = require("posix")
 local cava = {}
 cava.mt = {}
 
+cava_global_val = {}
+
 cava.defaults = {
+    position = "left", -- TODO
+    x = 0,
+    y = 0,
     update_time = 0.05,
 }
 
 function cava.new(s, properties)
-    local properties = gears.table.merge(cava.defaults, properties or {})
+    local properties = gears.table.crush(cava.defaults, properties or {})
 
     local cava_widget = wibox.widget.base.make_widget()
     cava_widget.val = {}
@@ -47,13 +52,21 @@ function cava.new(s, properties)
             local cava_string = posix.read(cava_fifo, 4096)
             posix.close(cava_fifo)
             if cava_string then
-                self.val = {}
+                local cava_val = {}
                 for match in cava_string:gmatch("[^;]+") do
-                    table.insert(self.val, match)
+                    table.insert(cava_val, match)
                 end
-                self:emit_signal("widget::updated")
+                cava_global_val = cava_val
             end
         end
+
+        if #cava_global_val ~= 0 then
+            self.val = cava_global_val
+            self:emit_signal("widget::updated")
+        else
+            self:emit_signal("widget::updated")
+        end
+
         return true
     end
 
@@ -65,8 +78,8 @@ function cava.new(s, properties)
     })
 
     cava_box:geometry({
-        x = 0,
-        y = 0,
+        x = s.geometry.x + properties.x,
+        y = s.geometry.y + properties.y,
         width = 45,
         height = s.geometry.height,
     })
