@@ -114,9 +114,15 @@ bindings.keyboard = {
 
         -- Rofi
         awful.key({ modkey }, "x", function()
-            awful.spawn("rofi -modi drun,run -show run -location 1 -xoffset " .. global.panel_size)
-        end,
+                      awful.spawn("rofi -modi drun,run -show run -location 1 -xoffset " .. global.panel_size)
+                  end,
                   {description = "run rofi launcher", group = "launcher"}),
+
+        -- Vimwiki
+        awful.key({ modkey, "Control" }, "w", function()
+                      awful.spawn(global.editor_cmd .. " +VimwikiIndex")
+                  end,
+                  {description = "open vimwiki index page", group = "launcher"}),
 
         -- Screen lock
         awful.key({ "Control", "Mod1" }, "l",
