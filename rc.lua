@@ -178,7 +178,12 @@ awful.screen.connect_for_each_screen(function(s)
         s,
         awful.widget.taglist.filter.noempty,
         taglist_buttons,
-        {align = "center"},
+        {
+            align = "center",
+            bg_normal = beautiful.bg_normal .. "a0",
+            bg_focus = beautiful.bg_focus .. "c0",
+            bg_urgent = beautiful.bg_urgent .. "c0",
+        },
         nil,
         wibox.layout.fixed.vertical()
     )
@@ -188,13 +193,24 @@ awful.screen.connect_for_each_screen(function(s)
         s,
         awful.widget.tasklist.filter.currenttags,
         tasklist_buttons,
-        {align = "center", disable_task_name = true},
+        {
+            align = "center",
+            disable_task_name = true,
+            bg_normal = beautiful.bg_normal .. "a0",
+            bg_focus = beautiful.bg_focus .. "c0",
+            bg_urgent = beautiful.bg_urgent .. "c0",
+        },
         nil,
         wibox.layout.fixed.vertical()
     )
 
     -- Create the wibox
-    s.wibox = awful.wibar { screen = s, position = "left", width = global.panel_size }
+    s.wibox = awful.wibar {
+        screen = s,
+        position = "left",
+        width = global.panel_size,
+        bg = beautiful.bg_normal .. "a0", -- bg with alpha
+    }
 
     s.systray = wibox.widget.systray()
 
