@@ -32,7 +32,7 @@ awesome.set_preferred_icon_size(global.panel_size)
 if awesome.startup_errors then
     naughty.notify({
             preset = naughty.config.presets.critical,
-            title = "Oops, there were errors during startup!",
+            title = "Errors during startup",
             text = awesome.startup_errors,
         })
 end
@@ -47,7 +47,7 @@ do
 
         naughty.notify({
                 preset = naughty.config.presets.critical,
-                title = "oops, an error happened!",
+                title = "An error occured",
                 text = tostring(err),
             })
         in_error = false

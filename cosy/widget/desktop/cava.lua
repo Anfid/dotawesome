@@ -8,6 +8,12 @@ local gears = require("gears")
 local beautiful = require("beautiful")
 local wibox = require("wibox")
 local posix = require("posix")
+local global = require("global")
+
+local dbg = require("dbg")
+
+-- Constant, depends on cava configuration
+local cava_max = 1000
 
 local cava = {}
 cava.mt = {}
@@ -16,15 +22,21 @@ cava_global_val = {}
 
 cava.defaults = {
     position = "left", -- TODO
+    size = global.panel_size,
+    zero_size = 2,
     x = 0,
     y = 0,
     update_time = 0.05,
 }
 
+local function round(x) return x + 0.5 - (x + 0.5) % 1 end
+
 function cava.new(s, properties)
     local properties = gears.table.crush(cava.defaults, properties or {})
 
     local cava_widget = wibox.widget.base.make_widget()
+    cava_widget.size = properties.size
+    cava_widget.zero_size = properties.zero_size
     cava_widget.val = {}
 
     function cava_widget:fit(context, width, height) return width, height end
@@ -34,13 +46,13 @@ function cava.new(s, properties)
         cr:set_line_width(0)
 
         for i = 1, #self.val do
-            --settings
-            local rec_width  = self.val[i] + 2
-            local rec_height = (height - 10) / 50 - 5
-            local top_left_x = 0
-            local top_left_y = (i - 1) * (rec_height + 5) + 5
-            --draw it
-            cr:rectangle(top_left_x,top_left_y,rec_width,rec_height)
+            local rect = {}
+            rect.w = self.val[i] + self.zero_size
+            rect.h = (height - 10) / 50 - 5
+            rect.x = 0
+            rect.y = (i - 1) * (rect.h + 5) + 5
+
+            cr:rectangle(rect.x, rect.y, rect.w, rect.h)
             cr:fill_preserve()
             cr:stroke()
         end
@@ -49,22 +61,45 @@ function cava.new(s, properties)
     function cava_widget:update_val()
         local cava_fifo = posix.open("/tmp/cava", posix.O_RDONLY + posix.O_NONBLOCK)
         if cava_fifo then
-            local cava_string = posix.read(cava_fifo, 4096)
+            -- Buffer has to be big enough to read all accumulated output asap. This will prevent slow updating cava
+            -- from displaying outdated values
+            local bufsize = 4096
+            local cava_string = posix.read(cava_fifo, bufsize)
             posix.close(cava_fifo)
             if cava_string then
                 local cava_val = {}
-                for match in cava_string:gmatch("[^;]+") do
+                for match in cava_string:match("[^\n]+"):gmatch("[^;]+") do
                     table.insert(cava_val, match)
                 end
-                cava_global_val = cava_val
+
+                -- This condition prevents blinking. Sometimes because of simultaneous access to fifo incomplete string
+                -- may be received. This way it may freeze a little sometimes, but it won't blink
+                if #cava_val == 50 then
+                    cava_global_val = cava_val
+                end
             end
         end
 
         if #cava_global_val ~= 0 then
-            self.val = cava_global_val
-            self:emit_signal("widget::updated")
-        else
-            self:emit_signal("widget::updated")
+            local values = {}
+            local success
+            -- Adjust values to fit into the desired size
+            for _, val in ipairs(cava_global_val) do
+                local result
+                -- prevents freeze, when broken values received
+                success, result = pcall(function() return round(val * (self.size - self.zero_size) / cava_max) end)
+
+                if not success then
+                    break
+                else
+                    table.insert(values, result)
+                end
+            end
+
+            if success then
+                self.val = values
+                self:emit_signal("widget::updated")
+            end
         end
 
         return true
