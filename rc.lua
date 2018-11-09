@@ -295,6 +295,8 @@ awful.rules.rules = {
 -- {{{ Functions
 -- Toggle titlebar on or off depending on s. Creates titlebar if it doesn't exist
 local function manage_titlebar(c)
+    -- Fullscreen clients are considered floating. Return to prevent clients from shifting down in fullscreen mode
+    if c.fullscreen then return end
     local show = c.floating or awful.layout.get(c.screen) == awful.layout.suit.floating
     if show then
         if c.titlebar == nil then
@@ -304,6 +306,8 @@ local function manage_titlebar(c)
     else
         awful.titlebar.hide(c)
     end
+    -- Prevents titlebar appearing off the screen
+    awful.placement.no_offscreen(c)
 end
 
 local function getn(table)
@@ -333,7 +337,7 @@ client.connect_signal("manage", function (c)
     end
 
     -- Save floating client geometry
-    if c.floating or awful.layout.get(c.screen) == awful.layout.suit.floating then
+    if c.floating and not c.fullscreen or awful.layout.get(c.screen) == awful.layout.suit.floating then
         floatgeoms[c.window] = c:geometry()
     end
 
@@ -347,27 +351,25 @@ end)
 
 -- FIXME: Exclude titlebar from geometry
 client.connect_signal("property::floating", function(c)
-    local floating = c.floating or awful.layout.get(c.screen) == awful.layout.suit.floating
+    local floating = c.floating and not c.fullscreen or awful.layout.get(c.screen) == awful.layout.suit.floating
     if floating then
         c:geometry(floatgeoms[c.window])
     end
     manage_titlebar(c)
-    awful.placement.no_offscreen(c)
 end)
 
 tag.connect_signal("property::layout", function(t)
     for _, c in pairs(t:clients()) do
-        local floating = c.floating or t.layout == awful.layout.suit.floating
+        local floating = c.floating and not c.fullscreen or t.layout == awful.layout.suit.floating
         if floating then
             c:geometry(floatgeoms[c.window])
         end
         manage_titlebar(c)
-        awful.placement.no_offscreen(c)
     end
 end)
 
 client.connect_signal("property::geometry", function(c)
-    local floating = c.floating or awful.layout.get(c.screen) == awful.layout.suit.floating
+    local floating = c.floating and not c.fullscreen or awful.layout.get(c.screen) == awful.layout.suit.floating
     if floating then
         floatgeoms[c.window] = c:geometry()
     end
