@@ -16,7 +16,7 @@ local cava_max = 1000
 local cava = {}
 cava.mt = {}
 
-cava_global_val = {}
+_G.cava_global_val = {}
 
 cava.defaults = {
     position = "left", -- TODO
@@ -85,13 +85,13 @@ function cava.new(s, properties)
 
         -- Do not return in case of failure. Value can be updated by other widget
         if parse_success then
-            cava_global_val = parse_result
+            _G.cava_global_val = parse_result
         end
 
-        if #cava_global_val ~= 0 then
+        if #_G.cava_global_val ~= 0 then
             -- Adjust values to fit into the desired size
             self.val = {}
-            for _, val in ipairs(cava_global_val) do
+            for _, val in ipairs(_G.cava_global_val) do
                 table.insert(self.val, round(val * (self.size - self.zero_size) / cava_max))
             end
 
