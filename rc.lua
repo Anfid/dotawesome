@@ -310,6 +310,12 @@ local function manage_titlebar(c)
     awful.placement.no_offscreen(c)
 end
 
+-- returns true if client is floating and can be moved
+local function is_free_floating(c)
+    return (c.floating or awful.layout.get(c.screen) == awful.layout.suit.floating)
+        and not (c.fullscreen or c.maximized or c.maximized_vertical or c.maximized_horizontal)
+end
+
 local function getn(table)
     local count = 0
     for _, v in pairs(table) do
@@ -331,28 +337,31 @@ client.connect_signal("manage", function (c)
     -- Set floating if slave window is created on popup layout
     -- TODO: Consider if more elegant solution is possible
     if awful.layout.get(c.screen) == cosy.layout.popup
-        and getn(c.first_tag:clients()) > 1 then
+        and getn(c.first_tag:clients()) > 1
+    then
         c.floating = true
-        awful.placement.bottom(c)
+        awful.placement.no_overlap(c)
     end
 
     -- Save floating client geometry
-    if c.floating and not c.fullscreen or awful.layout.get(c.screen) == awful.layout.suit.floating then
+    if is_free_floating(c) then
         floatgeoms[c.window] = c:geometry()
     end
 
-    if awesome.startup and
-      not c.size_hints.user_position
-      and not c.size_hints.program_position then
+    if awesome.startup
+        and not c.size_hints.user_position
+        and not c.size_hints.program_position
+    then
         -- Prevent clients from being unreachable after screen count changes.
         awful.placement.no_offscreen(c)
     end
 end)
 
 -- FIXME: Exclude titlebar from geometry
+-- XXX: There seems to be a weird behavior with property::floating signal. It is not sent when maximized and fullscreen
+-- property changes of clients originally created on other than floating tag layouts and sent otherwise
 client.connect_signal("property::floating", function(c)
-    local floating = c.floating and not c.fullscreen or awful.layout.get(c.screen) == awful.layout.suit.floating
-    if floating then
+    if is_free_floating(c) then
         c:geometry(floatgeoms[c.window])
     end
     manage_titlebar(c)
@@ -360,8 +369,7 @@ end)
 
 tag.connect_signal("property::layout", function(t)
     for _, c in pairs(t:clients()) do
-        local floating = c.floating and not c.fullscreen or t.layout == awful.layout.suit.floating
-        if floating then
+        if is_free_floating(c) then
             c:geometry(floatgeoms[c.window])
         end
         manage_titlebar(c)
@@ -369,8 +377,7 @@ tag.connect_signal("property::layout", function(t)
 end)
 
 client.connect_signal("property::geometry", function(c)
-    local floating = c.floating and not c.fullscreen or awful.layout.get(c.screen) == awful.layout.suit.floating
-    if floating then
+    if is_free_floating(c) then
         floatgeoms[c.window] = c:geometry()
     end
 end)
