@@ -19,4 +19,13 @@ function dbg.notify(var, title)
         })
 end
 
+function dbg.notify_err(var, title)
+    local title = title or "Error"
+    naughty.notify({
+            preset = naughty.config.presets.critical,
+            title = title,
+            text = gears.debug.dump_return(var),
+        })
+end
+
 return dbg
