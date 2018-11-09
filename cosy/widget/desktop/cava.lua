@@ -10,8 +10,6 @@ local wibox = require("wibox")
 local posix = require("posix")
 local global = require("global")
 
-local dbg = require("dbg")
-
 -- Constant, depends on cava configuration
 local cava_max = 1000
 
@@ -31,6 +29,27 @@ cava.defaults = {
 
 local function round(x) return x + 0.5 - (x + 0.5) % 1 end
 
+-- Throws exception
+local function parse_fifo()
+    local cava_fifo = assert(posix.open("/tmp/cava", posix.O_RDONLY + posix.O_NONBLOCK), "Could not open /tmp/cava")
+    -- Buffer has to be big enough to read all accumulated output asap. This will prevent slow updating cava
+    -- from displaying outdated values
+    local bufsize = 4096
+    local cava_string = posix.read(cava_fifo, bufsize)
+    posix.close(cava_fifo)
+
+    local cava_val = {}
+    for match in cava_string:match("[^\n]+"):gmatch("[^;]+") do
+        table.insert(cava_val, match)
+    end
+
+    -- Assert prevents blinking. Sometimes because of simultaneous access to fifo incomplete string may be received.
+    -- This way it may freeze a little sometimes, but it won't blink
+    assert(#cava_val == 50, "Expected length of the table is 50. Actual result: " .. tostring(#cava_val))
+
+    return cava_val
+end
+
 function cava.new(s, properties)
     local properties = gears.table.crush(cava.defaults, properties or {})
 
@@ -38,6 +57,9 @@ function cava.new(s, properties)
     cava_widget.size = properties.size
     cava_widget.zero_size = properties.zero_size
     cava_widget.val = {}
+    for i = 1, 50 do
+        cava_widget.val[i] = 0
+    end
 
     function cava_widget:fit(context, width, height) return width, height end
 
@@ -59,47 +81,23 @@ function cava.new(s, properties)
     end
 
     function cava_widget:update_val()
-        local cava_fifo = posix.open("/tmp/cava", posix.O_RDONLY + posix.O_NONBLOCK)
-        if cava_fifo then
-            -- Buffer has to be big enough to read all accumulated output asap. This will prevent slow updating cava
-            -- from displaying outdated values
-            local bufsize = 4096
-            local cava_string = posix.read(cava_fifo, bufsize)
-            posix.close(cava_fifo)
-            if cava_string then
-                local cava_val = {}
-                for match in cava_string:match("[^\n]+"):gmatch("[^;]+") do
-                    table.insert(cava_val, match)
-                end
+        local parse_success, parse_result = pcall(parse_fifo)
 
-                -- This condition prevents blinking. Sometimes because of simultaneous access to fifo incomplete string
-                -- may be received. This way it may freeze a little sometimes, but it won't blink
-                if #cava_val == 50 then
-                    cava_global_val = cava_val
-                end
-            end
+        -- Do not return in case of failure. Value can be updated by other widget
+        if parse_success then
+            cava_global_val = parse_result
         end
 
         if #cava_global_val ~= 0 then
-            local values = {}
-            local success
             -- Adjust values to fit into the desired size
+            self.val = {}
             for _, val in ipairs(cava_global_val) do
-                local result
-                -- prevents freeze, when broken values received
-                success, result = pcall(function() return round(val * (self.size - self.zero_size) / cava_max) end)
-
-                if not success then
-                    break
-                else
-                    table.insert(values, result)
-                end
+                table.insert(self.val, round(val * (self.size - self.zero_size) / cava_max))
             end
 
-            if success then
-                self.val = values
-                self:emit_signal("widget::updated")
-            end
+            self:emit_signal("widget::updated")
+        else
+            return false, "Empty global cava buffer"
         end
 
         return true
@@ -121,7 +119,13 @@ function cava.new(s, properties)
 
     cava_box:set_widget(cava_widget)
 
-    cava_box.timer = gears.timer.start_new(properties.update_time, function() return cava_widget:update_val() end)
+    cava_widget:emit_signal("widget::updated")
+    cava_widget.timer = gears.timer.start_new(
+        properties.update_time,
+        function()
+            cava_widget:update_val()
+            return true -- Ignore errors
+        end)
 
     return cava_box
 end
