@@ -50,6 +50,15 @@ local function parse_fifo()
     return cava_val
 end
 
+local function update_global_val()
+    local parse_success, parse_result = pcall(parse_fifo)
+
+    -- Do not return in case of failure. Value can be updated by other widget
+    if parse_success then
+        _G.cava_global_val = parse_result
+    end
+end
+
 function cava.new(s, properties)
     local properties = gears.table.crush(cava.defaults, properties or {})
 
@@ -81,26 +90,18 @@ function cava.new(s, properties)
     end
 
     function cava_widget:update_val()
-        local parse_success, parse_result = pcall(parse_fifo)
+        update_global_val()
 
-        -- Do not return in case of failure. Value can be updated by other widget
-        if parse_success then
-            _G.cava_global_val = parse_result
+        local cava_val = _G.cava_global_val
+
+        assert(#cava_val == 50, "Global cava buffer has wrong amount of values")
+
+        -- Adjust values to fit into the desired size
+        for i = 1, 50 do
+            self.val[i] = round(cava_val[i] * (self.size - self.zero_size) / cava_max)
         end
 
-        if #_G.cava_global_val ~= 0 then
-            -- Adjust values to fit into the desired size
-            self.val = {}
-            for _, val in ipairs(_G.cava_global_val) do
-                table.insert(self.val, round(val * (self.size - self.zero_size) / cava_max))
-            end
-
-            self:emit_signal("widget::updated")
-        else
-            return false, "Empty global cava buffer"
-        end
-
-        return true
+        self:emit_signal("widget::updated")
     end
 
     local cava_box = wibox({
@@ -113,7 +114,7 @@ function cava.new(s, properties)
     cava_box:geometry({
         x = s.geometry.x + properties.x,
         y = s.geometry.y + properties.y,
-        width = 45,
+        width = properties.size,
         height = s.geometry.height,
     })
 
@@ -123,7 +124,7 @@ function cava.new(s, properties)
     cava_widget.timer = gears.timer.start_new(
         properties.update_time,
         function()
-            cava_widget:update_val()
+            pcall(cava_widget.update_val, cava_widget)
             return true -- Ignore errors
         end)
 
