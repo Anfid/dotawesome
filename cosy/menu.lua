@@ -9,6 +9,8 @@ local awful = require("awful")
 local beautiful = require("beautiful")
 local global = require("global")
 
+local awesome = _G.awesome
+
 local menu = {}
 
 local launcher_power = {
@@ -18,7 +20,6 @@ local launcher_power = {
 
 local launcher_awesome = {
    { "Restart",     awesome.restart },
-   { "Hotkeys",     function() return false, hotkeys_popup.show_help end},
    { "Edit config", global.editor_cmd .. " " .. awesome.conffile },
    { "Quit",        function() awesome.quit() end},
 }

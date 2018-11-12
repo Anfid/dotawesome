@@ -1,9 +1,9 @@
 -- Capture variables
-local awesome = awesome
-local client = client
-local root = root
-local tag = tag
-local screen = screen
+local awesome = _G.awesome
+local client = _G.client
+local root = _G.root
+local tag = _G.tag
+local screen = _G.screen
 -- Standard awesome library
 local gears = require("gears")
 local awful = require("awful")

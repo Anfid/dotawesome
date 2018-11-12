@@ -4,8 +4,8 @@ local hotkeys_popup = require("awful.hotkeys_popup").widget
 local menu = require("cosy.menu")
 local global = require("global")
 
-local client = client
-local awesome = awesome
+local client = _G.client
+local awesome = _G.awesome
 
 local modkey = global.modkey
 
