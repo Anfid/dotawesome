@@ -8,7 +8,6 @@ local gears = require("gears")
 local beautiful = require("beautiful")
 local wibox = require("wibox")
 local posix = require("posix")
-local global = require("global")
 
 -- Constant, depends on cava configuration
 local cava_max = 1000
@@ -20,7 +19,7 @@ _G.cava_global_val = {}
 
 cava.defaults = {
     position = "left", -- TODO
-    size = global.panel_size,
+    size = 45,
     zero_size = 2,
     x = 0,
     y = 0,
@@ -51,11 +50,10 @@ local function parse_fifo()
 end
 
 local function update_global_val()
-    local parse_success, parse_result = pcall(parse_fifo)
+    local success, result = pcall(parse_fifo)
 
-    -- Do not return in case of failure. Value can be updated by other widget
-    if parse_success then
-        _G.cava_global_val = parse_result
+    if success then
+        _G.cava_global_val = result
     end
 end
 
