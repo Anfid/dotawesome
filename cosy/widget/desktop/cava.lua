@@ -97,11 +97,19 @@ function cava.new(s, properties)
         assert(#cava_val == 50, "Global cava buffer has wrong amount of values")
 
         -- Adjust values to fit into the desired size
-        for i = 1, 50 do
-            self.val[i] = round(cava_val[i] * (self.size - self.zero_size) / cava_max)
+        local cava_val_fit = {}
+        local cava_changed = false
+        for i = 1, #cava_val do
+            cava_val_fit[i] = round(cava_val[i] * (self.size - self.zero_size) / cava_max)
+            if self.val[i] ~= cava_val_fit[i] then
+                cava_changed = true
+            end
         end
 
-        self:emit_signal("widget::updated")
+        if cava_changed then
+            self.val = cava_val_fit
+            self:emit_signal("widget::updated")
+        end
     end
 
     local cava_box = wibox({
