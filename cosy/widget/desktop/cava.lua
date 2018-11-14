@@ -18,11 +18,10 @@ cava.mt = {}
 _G.cava_global_val = {}
 
 cava.defaults = {
-    position = "left", -- TODO
+    position = "top",
     size = 45,
     zero_size = 2,
-    x = 0,
-    y = 0,
+    spacing = 5,
     update_time = 0.05,
 }
 
@@ -57,35 +56,126 @@ local function update_global_val()
     end
 end
 
+local function draw_top(cava_widget, context, cr, width, height)
+    local w = width / 50 - cava_widget.spacing  -- block width
+    local d = w + cava_widget.spacing           -- block distance
+
+    cr:set_source(gears.color(beautiful.fg_normal .. "a0"))
+    cr:set_line_width(w)
+
+    for i = 1, #cava_widget.val do
+        local val = cava_widget.val[i] + cava_widget.zero_size
+        local pos = d * i - d / 2
+
+        cr:move_to(pos, 0  )
+        cr:line_to(pos, val)
+    end
+
+    cr:stroke()
+end
+
+local function draw_left(cava_widget, context, cr, width, height)
+    local w = height / 50 - cava_widget.spacing -- block width
+    local d = w + cava_widget.spacing           -- block distance
+
+    cr:set_source(gears.color(beautiful.fg_normal .. "a0"))
+    cr:set_line_width(w)
+
+    for i = 1, #cava_widget.val do
+        local val = cava_widget.val[i] + cava_widget.zero_size
+        local pos = d * i - d / 2
+
+        cr:move_to(0,   pos)
+        cr:line_to(val, pos)
+    end
+
+    cr:stroke()
+end
+
+local function draw_bottom(cava_widget, context, cr, width, height)
+    local w = width / 50 - cava_widget.spacing  -- block width
+    local d = w + cava_widget.spacing           -- block distance
+
+    cr:set_source(gears.color(beautiful.fg_normal .. "a0"))
+    cr:set_line_width(w)
+
+    for i = 1, #cava_widget.val do
+        local val = cava_widget.val[i] + cava_widget.zero_size
+        local pos = d * i - d / 2
+
+        cr:move_to(pos, height      )
+        cr:line_to(pos, height - val)
+    end
+
+    cr:stroke()
+end
+
+local function draw_right(cava_widget, context, cr, width, height)
+    local w = height / 50 - cava_widget.spacing -- block width
+    local d = w + cava_widget.spacing           -- block distance
+
+    cr:set_source(gears.color(beautiful.fg_normal .. "a0"))
+    cr:set_line_width(w)
+
+    for i = 1, #cava_widget.val do
+        local val = cava_widget.val[i] + cava_widget.zero_size
+        local pos = d * i - d / 2
+
+        cr:move_to(width,       pos)
+        cr:line_to(width - val, pos)
+    end
+
+    cr:stroke()
+end
+
+-- TODO: Document properties
+-- update_time - how often widget is redrawn. For single widget 0.05 works best. However, if more than one widget is
+-- used, it is better to set to 0.01. Widgets sometimes interrupt each other's reading of fifo and faster redraw rate
+-- compensates lag frames
 function cava.new(s, properties)
-    local properties = gears.table.crush(cava.defaults, properties or {})
+    local properties = gears.table.join(cava.defaults, properties or {})
 
     local cava_widget = wibox.widget.base.make_widget()
+    cava_widget.position = properties.position
     cava_widget.size = properties.size
     cava_widget.zero_size = properties.zero_size
+    cava_widget.spacing = properties.spacing
     cava_widget.val = {}
+
+    -- Assigning draw function prevents multiple string comparison in performance critical code
+    if     cava_widget.position == "top" then
+        cava_widget.draw = draw_top
+        properties.w = s.geometry.width
+        properties.h = properties.size
+        if not properties.x then properties.x = 0 end
+        if not properties.y then properties.y = 0 end
+    elseif cava_widget.position == "left" then
+        cava_widget.draw = draw_left
+        properties.w = properties.size
+        properties.h = s.geometry.height
+        if not properties.x then properties.x = 0 end
+        if not properties.y then properties.y = 0 end
+    elseif cava_widget.position == "bottom" then
+        cava_widget.draw = draw_bottom
+        properties.w = s.geometry.width
+        properties.h = properties.size
+        if not properties.x then properties.x = 0 end
+        if not properties.y then properties.y = s.geometry.height - properties.size end
+    elseif cava_widget.position == "right" then
+        cava_widget.draw = draw_right
+        properties.w = properties.size
+        properties.h = s.geometry.height
+        if not properties.x then properties.x = s.geometry.width - properties.size end
+        if not properties.y then properties.y = 0 end
+    else
+        error("Wrong cava widget position")
+    end
+
     for i = 1, 50 do
         cava_widget.val[i] = 0
     end
 
     function cava_widget:fit(context, width, height) return width, height end
-
-    function cava_widget:draw(context, cr, width, height)
-        cr:set_source(gears.color(beautiful.fg_normal .. "a0"))
-        cr:set_line_width(0)
-
-        for i = 1, #self.val do
-            local rect = {}
-            rect.w = self.val[i] + self.zero_size
-            rect.h = (height - 10) / 50 - 5
-            rect.x = 0
-            rect.y = (i - 1) * (rect.h + 5) + 5
-
-            cr:rectangle(rect.x, rect.y, rect.w, rect.h)
-            cr:fill_preserve()
-            cr:stroke()
-        end
-    end
 
     function cava_widget:update_val()
         update_global_val()
@@ -104,6 +194,7 @@ function cava.new(s, properties)
             end
         end
 
+        -- Prevent unnecessary redraw
         if cava_changed then
             self.val = cava_val_fit
             self:emit_signal("widget::updated")
@@ -120,8 +211,8 @@ function cava.new(s, properties)
     cava_box:geometry({
         x = s.geometry.x + properties.x,
         y = s.geometry.y + properties.y,
-        width = properties.size,
-        height = s.geometry.height,
+        width  = properties.w,
+        height = properties.h,
     })
 
     cava_box:set_widget(cava_widget)

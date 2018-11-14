@@ -164,7 +164,13 @@ awful.screen.connect_for_each_screen(function(s)
     -- Each screen has its own tag table.
     awful.tag({ "1", "2", "3", "4", "5", "6", "7", "8", "9" }, s, awful.layout.layouts[1])
 
-    cosy.widget.desktop.cava(s, {size = global.panel_size, position = global.panel_position})
+    cosy.widget.desktop.cava(
+        s,
+        {
+            size = global.panel_size,
+            position = global.panel_position,
+            update_time = (screen:count() > 1) and 0.01 or 0.05
+        })
 
     -- Create an imagebox widget which will contain an icon indicating which layout we're using.
     -- We need one layoutbox per screen.
@@ -186,8 +192,7 @@ awful.screen.connect_for_each_screen(function(s)
             bg_urgent = beautiful.bg_urgent .. "c0",
         },
         nil,
-        wibox.layout.fixed.vertical()
-    )
+        wibox.layout.fixed.vertical())
 
     -- Create a tasklist widget
     s.tasklist = awful.widget.tasklist(
@@ -202,8 +207,7 @@ awful.screen.connect_for_each_screen(function(s)
             bg_urgent = beautiful.bg_urgent .. "c0",
         },
         nil,
-        wibox.layout.fixed.vertical()
-    )
+        wibox.layout.fixed.vertical())
 
     -- Create the wibox
     s.wibox = awful.wibar {
