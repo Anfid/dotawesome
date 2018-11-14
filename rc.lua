@@ -294,7 +294,7 @@ client.connect_signal("manage", function (c)
         and getn(c.first_tag:clients()) > 1
     then
         c.floating = true
-        awful.placement.no_overlap(c)
+        awful.placement.no_offscreen(c)
     end
 
     -- Save floating client geometry
