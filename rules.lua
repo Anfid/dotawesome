@@ -6,7 +6,7 @@
 
 local awful = require("awful")
 local beautiful = require("beautiful")
-local cosy = require("cosy")
+local bindings = require("bindings")
 
 local screen = _G.screen
 
@@ -20,8 +20,8 @@ local rules = {
             border_color = beautiful.border_normal,
             focus = awful.client.focus.filter,
             raise = true,
-            keys = cosy.bindings.keyboard.client,
-            buttons = cosy.bindings.mouse.client,
+            keys = bindings.keyboard.client,
+            buttons = bindings.mouse.client,
             screen = awful.screen.preferred,
             placement = awful.placement.no_overlap+awful.placement.no_offscreen
         }
@@ -69,7 +69,7 @@ local rules = {
     -- Assign default tags
     {
         rule_any = {
-            class = {"Waterfox", "Firefox"}
+            class = {"Waterfox", "Firefox", "qutebrowser"}
         },
         properties = { screen = 1, tag = "1" }
     },

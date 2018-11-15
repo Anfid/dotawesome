@@ -24,6 +24,7 @@ naughty.config.defaults['icon_size'] = 64
 local cosy = require("cosy")
 local global = require("global")
 local rules = require("rules")
+local bindings = require("bindings")
 
 awesome.set_preferred_icon_size(global.panel_size)
 
@@ -102,13 +103,13 @@ local keyboardlayout = awful.widget.keyboardlayout()
 -- Create a wibox for each screen and add it
 local taglist_buttons = gears.table.join(
                     awful.button({ }, 1, function(t) t:view_only() end),
-                    awful.button({ cosy.bindings.modkey }, 1, function(t)
+                    awful.button({ bindings.modkey }, 1, function(t)
                                               if client.focus then
                                                   client.focus:move_to_tag(t)
                                               end
                                           end),
                     awful.button({ }, 3, awful.tag.viewtoggle),
-                    awful.button({ cosy.bindings.modkey }, 3, function(t)
+                    awful.button({ bindings.modkey }, 3, function(t)
                                               if client.focus then
                                                   client.focus:toggle_tag(t)
                                               end
@@ -240,8 +241,8 @@ end)
 -- }}}
 
 -- {{{ Set bindings
-root.buttons(cosy.bindings.mouse.global)
-root.keys(cosy.bindings.keyboard.global)
+root.buttons(bindings.mouse.global)
+root.keys(bindings.keyboard.global)
 -- }}}
 
 awful.rules.rules = rules

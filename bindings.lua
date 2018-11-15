@@ -1,7 +1,14 @@
+---------------------------------------------------------------------------
+--- Bindings
+-- Various keyboard and mouse bindings
+--
+-- @module bindings
+---------------------------------------------------------------------------
+
 local awful = require("awful")
 local gears = require("gears")
 local hotkeys_popup = require("awful.hotkeys_popup").widget
-local menu = require("cosy.menu")
+local menu = require("menu")
 local global = require("global")
 
 local client = _G.client

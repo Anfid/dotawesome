@@ -2,7 +2,7 @@
 --- Menu
 -- Definitions for awful.menu
 --
--- @module cosy.menu
+-- @module menu
 ---------------------------------------------------------------------------
 
 local awful = require("awful")
