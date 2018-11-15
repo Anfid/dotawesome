@@ -6,9 +6,11 @@
 ---------------------------------------------------------------------------
 
 local awful = require("awful")
+local beautiful = require("beautiful")
 local gears = require("gears")
 local hotkeys_popup = require("awful.hotkeys_popup").widget
 local menu = require("menu")
+
 local global = require("global")
 
 local client = _G.client
@@ -31,6 +33,13 @@ local function client_menu_toggle_fn()
         else
             instance = awful.menu.clients({ theme = { width = 250 } })
         end
+    end
+end
+
+local function reload_color(c)
+    beautiful.init("~/.config/awesome/themes/xresources/theme.lua")
+    for s in _G.screen do
+        _G.construct_panel(s)
     end
 end
 -- }}}
@@ -82,6 +91,8 @@ bindings.keyboard = {
                   {description = "reload awesome", group = "awesome"}),
         awful.key({ modkey, "Shift"   }, "q", awesome.quit,
                   {description = "quit awesome", group = "awesome"}),
+        awful.key({ modkey,           }, "r", reload_color,
+                  {description = "reload awesome colors",     group = "awesome"}),
 
         -- Layout manipulation
         awful.key({ modkey, "Shift"   }, "j", function () awful.client.swap.byidx(  1)    end,

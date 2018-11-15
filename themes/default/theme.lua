@@ -6,9 +6,11 @@
 local default_zen_path = require("gears.filesystem").get_themes_dir()
 local dpi = require("beautiful.xresources").apply_dpi
 
+local global = require("global")
+
 -- {{{ Main
 local theme = {}
-theme.wallpaper = default_zen_path .. "zenburn/zenburn-background.png"
+theme.wallpaper = "~/Pictures/Wallpapers/LoneWolf.png"
 -- }}}
 
 -- {{{ Styles
@@ -63,12 +65,17 @@ theme.mouse_finder_color = "#CC9393"
 -- mouse_finder_[timeout|animate_timeout|radius|factor]
 -- }}}
 
+if global.dynamic_theme then
+    -- TODO: read color file and update colors, if dynamic_theme is enabled
+    pcall(require, "colors")
+end
+
 -- {{{ Menu
 -- Variables set for theming the menu:
 -- menu_[bg|fg]_[normal|focus]
 -- menu_[border_color|border_width]
-theme.menu_height = dpi(15)
-theme.menu_width  = dpi(100)
+theme.menu_height = dpi(25)
+theme.menu_width  = dpi(150)
 -- }}}
 
 -- {{{ Icons

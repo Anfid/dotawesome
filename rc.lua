@@ -81,19 +81,13 @@ awful.layout.layouts = {
 }
 -- }}}
 
--- Keyboard map indicator and switcher
-local keyboardlayout = awful.widget.keyboardlayout()
-
 -- Re-set wallpaper when a screen's geometry changes (e.g. different resolution)
 screen.connect_signal("property::geometry", cosy.util.set_wallpaper)
 
-awful.screen.connect_for_each_screen(function(s)
-    -- Wallpaper
-    cosy.util.set_wallpaper(s)
+-- Keyboard map indicator and switcher
+local keyboardlayout = awful.widget.keyboardlayout()
 
-    -- Each screen has its own tag table.
-    awful.tag({ "1", "2", "3", "4", "5", "6", "7", "8", "9" }, s, awful.layout.layouts[1])
-
+function _G.construct_panel(s)
     cosy.widget.desktop.cava(
         s,
         {
@@ -139,18 +133,21 @@ awful.screen.connect_for_each_screen(function(s)
         nil,
         wibox.layout.fixed.vertical())
 
-    -- Create the wibox
-    s.wibox = awful.wibar {
+    s.systray = wibox.widget.systray()
+
+    -- remove old panel
+    if s.panel then s.panel:remove() end
+
+    -- create new panel
+    s.panel = awful.wibar {
         screen = s,
         position = global.panel_position,
         width = global.panel_size,
         bg = beautiful.bg_normal .. "a0", -- bg with alpha
     }
 
-    s.systray = wibox.widget.systray()
-
     -- Add widgets to the wibox
-    s.wibox:setup {
+    s.panel:setup {
         layout = wibox.layout.align.vertical,
         { -- Left widgets
             layout = wibox.layout.fixed.vertical,
@@ -166,6 +163,16 @@ awful.screen.connect_for_each_screen(function(s)
             s.layoutbox,
         },
     }
+end
+
+awful.screen.connect_for_each_screen(function(s)
+    -- Wallpaper
+    cosy.util.set_wallpaper(s)
+
+    -- Each screen has its own tag table.
+    awful.tag({ "1", "2", "3", "4", "5", "6", "7", "8", "9" }, s, awful.layout.layouts[1])
+
+    _G.construct_panel(s)
 end)
 
 -- {{{ Set bindings
