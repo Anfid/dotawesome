@@ -84,26 +84,12 @@ awful.layout.layouts = {
 -- Keyboard map indicator and switcher
 local keyboardlayout = awful.widget.keyboardlayout()
 
--- {{{ Wibar
--- Create a wibox for each screen and add it
-local function set_wallpaper(s)
-    -- Wallpaper
-    if beautiful.wallpaper then
-        local wallpaper = beautiful.wallpaper
-        -- If wallpaper is a function, call it with the screen
-        if type(wallpaper) == "function" then
-            wallpaper = wallpaper(s)
-        end
-        gears.wallpaper.maximized(wallpaper, s, true)
-    end
-end
-
 -- Re-set wallpaper when a screen's geometry changes (e.g. different resolution)
-screen.connect_signal("property::geometry", set_wallpaper)
+screen.connect_signal("property::geometry", cosy.util.set_wallpaper)
 
 awful.screen.connect_for_each_screen(function(s)
     -- Wallpaper
-    set_wallpaper(s)
+    cosy.util.set_wallpaper(s)
 
     -- Each screen has its own tag table.
     awful.tag({ "1", "2", "3", "4", "5", "6", "7", "8", "9" }, s, awful.layout.layouts[1])
@@ -181,7 +167,6 @@ awful.screen.connect_for_each_screen(function(s)
         },
     }
 end)
--- }}}
 
 -- {{{ Set bindings
 root.buttons(bindings.mouse.global)
@@ -189,42 +174,6 @@ root.keys(bindings.keyboard.global)
 -- }}}
 
 awful.rules.rules = rules
-
--- {{{ Functions
--- Toggle titlebar on or off depending on s. Creates titlebar if it doesn't exist
-local function manage_titlebar(c)
-    -- Fullscreen clients are considered floating. Return to prevent clients from shifting down in fullscreen mode
-    if c.fullscreen then return end
-    local show = c.floating or awful.layout.get(c.screen) == awful.layout.suit.floating
-    if show then
-        if c.titlebar == nil then
-            c:emit_signal("request::titlebars", "rules", {})
-        end
-        awful.titlebar.show(c)
-    else
-        awful.titlebar.hide(c)
-    end
-    -- Prevents titlebar appearing off the screen
-    awful.placement.no_offscreen(c)
-end
-
--- returns true if client is floating and can be moved
-local function is_free_floating(c)
-    return (c.floating or awful.layout.get(c.screen) == awful.layout.suit.floating)
-        and not (c.fullscreen or c.maximized or c.maximized_vertical or c.maximized_horizontal)
-end
-
-local function getn(table)
-    local count = 0
-    for _, v in pairs(table) do
-        if v ~= nil then
-            count = count + 1
-        end
-    end
-
-    return count
-end
--- }}}
 
 -- {{{ Signals
 -- Signal function to execute when a new client appears.
@@ -235,14 +184,14 @@ client.connect_signal("manage", function (c)
     -- Set floating if slave window is created on popup layout
     -- TODO: Consider if more elegant solution is possible
     if awful.layout.get(c.screen) == cosy.layout.popup
-        and getn(c.first_tag:clients()) > 1
+        and cosy.util.table_count(c.first_tag:clients()) > 1
     then
         c.floating = true
         awful.placement.no_offscreen(c)
     end
 
     -- Save floating client geometry
-    if is_free_floating(c) then
+    if cosy.util.client_free_floating(c) then
         floatgeoms[c.window] = c:geometry()
     end
 
@@ -259,23 +208,23 @@ end)
 -- XXX: There seems to be a weird behavior with property::floating signal. It is not sent when maximized and fullscreen
 -- property changes of clients originally created on other than floating tag layouts and sent otherwise
 client.connect_signal("property::floating", function(c)
-    if is_free_floating(c) then
+    if cosy.util.client_free_floating(c) then
         c:geometry(floatgeoms[c.window])
     end
-    manage_titlebar(c)
+    cosy.util.manage_titlebar(c)
 end)
 
 tag.connect_signal("property::layout", function(t)
     for _, c in pairs(t:clients()) do
-        if is_free_floating(c) then
+        if cosy.util.client_free_floating(c) then
             c:geometry(floatgeoms[c.window])
         end
-        manage_titlebar(c)
+        cosy.util.manage_titlebar(c)
     end
 end)
 
 client.connect_signal("property::geometry", function(c)
-    if is_free_floating(c) then
+    if cosy.util.client_free_floating(c) then
         floatgeoms[c.window] = c:geometry()
     end
 end)
