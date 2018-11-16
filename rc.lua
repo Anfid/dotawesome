@@ -122,7 +122,7 @@ function _G.construct_panel(s)
     s.tasklist = awful.widget.tasklist(
         s,
         awful.widget.tasklist.filter.currenttags,
-        bindings.tasklist_mousebuttons,
+        bindings.tasklist_mouse,
         {
             align = "center",
             disable_task_name = true,

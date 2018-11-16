@@ -295,8 +295,8 @@ bindings.taglist_mouse = gears.table.join(
                                                   client.focus:toggle_tag(t)
                                               end
                                           end),
-                    awful.button({ }, 4, function(t) awful.tag.viewnext(t.screen) end),
-                    awful.button({ }, 5, function(t) awful.tag.viewprev(t.screen) end)
+                    awful.button({ }, 4, function(t) awful.tag.viewprev(t.screen) end),
+                    awful.button({ }, 5, function(t) awful.tag.viewnext(t.screen) end)
                 )
 
 bindings.tasklist_mouse = gears.table.join(
@@ -318,10 +318,10 @@ bindings.tasklist_mouse = gears.table.join(
                                           end),
                      awful.button({ }, 3, client_menu_toggle_fn()),
                      awful.button({ }, 4, function ()
-                                              awful.client.focus.byidx(1)
+                                              awful.client.focus.byidx(-1)
                                           end),
                      awful.button({ }, 5, function ()
-                                              awful.client.focus.byidx(-1)
+                                              awful.client.focus.byidx(1)
                                           end))
 
 
