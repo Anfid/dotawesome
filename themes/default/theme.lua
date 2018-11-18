@@ -67,7 +67,66 @@ theme.mouse_finder_color = "#CC9393"
 
 if global.dynamic_theme then
     -- TODO: read color file and update colors, if dynamic_theme is enabled
-    pcall(require, "colors")
+    local success, xres = pcall(require, "colors")
+    -- XXX: Work in progress temporary plug
+    -- This will be removed as soon as color extraction program is finished
+    success = true
+    xres = {
+        wallpaper = "~/Pictures/Wallpapers/LoneWolf.png",
+        foreground = "#e67979",
+        background = "#221a26",
+        cursorColor = "#e67979",
+
+        -- black
+        color0 = "#070508",
+        color8 = "#221a26",
+
+        -- red
+        color1 = "#cf392a",
+        color9 = "#df6357",
+
+        -- green
+        color2 = "#c8410c",
+        color10 = "#f35a1f",
+
+        -- yellow
+        color3 = "#9d244d",
+        color11 = "#cf2f65",
+
+        -- blue
+        color4 = "#992d51",
+        color12 = "#c73c6a",
+
+        -- magenta
+        color5 = "#95324a",
+        color13 = "#c14362",
+
+        -- cyan
+        color6 = "#a02b36",
+        color14 = "#cb3d4a",
+
+        -- white
+        color7 = "#eac8cf",
+        color15 = "#fbf4f5",
+    }
+    if success then
+        theme.wallpaper = xres.wallpaper
+
+        theme.fg_normal  = xres.foreground -- foreground
+        theme.fg_focus   = xres.color7 -- white
+        theme.fg_urgent  = xres.color1 -- red
+        theme.bg_normal  = xres.color0 -- black
+        theme.bg_focus   = xres.color8 -- black bright
+        theme.bg_urgent  = xres.color8 -- black bright
+        theme.bg_systray = theme.bg_normal
+
+        --theme.border_normal = -- undecided
+        --theme.border_focus  = -- undecided
+        --theme.border_marked = -- undecided
+
+        theme.titlebar_bg_focus  = xres.background
+        theme.titlebar_bg_normal = xres.color0
+    end
 end
 
 -- {{{ Menu

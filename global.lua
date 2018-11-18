@@ -6,7 +6,7 @@
 ---------------------------------------------------------------------------
 
 local global = {
-    dynamic_theme   = false,
+    dynamic_theme   = true,
     modkey          = "Mod4",
     panel_size      = 45,
     panel_position  = "left",
