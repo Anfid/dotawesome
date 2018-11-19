@@ -157,6 +157,7 @@ function _G.construct_panel(s)
         s.tasklist, -- Middle widget
         { -- Right widgets
             layout = wibox.layout.fixed.vertical,
+            cosy.widget.panel.battery({}),
             keyboardlayout,
             --s.systray,
             cosy.widget.textclock,
