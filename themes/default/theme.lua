@@ -14,7 +14,9 @@ theme.wallpaper = "~/Pictures/Wallpapers/LoneWolf.png"
 -- }}}
 
 -- {{{ Styles
-theme.font      = "Iosevka 12"
+theme.font_family   = "Iosevka"
+theme.font          = theme.font_family.." 12"
+theme.taglist_font  = theme.font_family.." 15"
 
 -- {{{ Colors
 theme.fg_normal  = "#DCDCCC"
@@ -161,6 +163,7 @@ theme.layout_dwindle    = default_zen_path .. "zenburn/layouts/dwindle.png"
 theme.layout_max        = default_zen_path .. "zenburn/layouts/max.png"
 theme.layout_fullscreen = default_zen_path .. "zenburn/layouts/fullscreen.png"
 theme.layout_magnifier  = default_zen_path .. "zenburn/layouts/magnifier.png"
+theme.layout_popup      = default_zen_path .. "zenburn/layouts/magnifier.png"
 theme.layout_floating   = default_zen_path .. "zenburn/layouts/floating.png"
 theme.layout_cornernw   = default_zen_path .. "zenburn/layouts/cornernw.png"
 theme.layout_cornerne   = default_zen_path .. "zenburn/layouts/cornerne.png"
