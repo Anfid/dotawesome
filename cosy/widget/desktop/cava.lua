@@ -9,6 +9,8 @@ local beautiful = require("beautiful")
 local wibox = require("wibox")
 local posix = require("posix")
 
+local round = require("cosy.util").math.round
+
 -- Constant, depends on cava configuration
 local cava_max = 1000
 
@@ -24,8 +26,6 @@ cava.defaults = {
     spacing = 5,
     update_time = 0.05,
 }
-
-local function round(x) return x + 0.5 - (x + 0.5) % 1 end
 
 -- Throws exception
 local function parse_fifo()
@@ -134,12 +134,7 @@ end
 -- compensates lag frames
 function cava.new(s, properties)
     local properties = gears.table.join(cava.defaults, properties or {})
-
-    local cava_widget = wibox.widget.base.make_widget()
-    cava_widget.position = properties.position
-    cava_widget.size = properties.size
-    cava_widget.zero_size = properties.zero_size
-    cava_widget.spacing = properties.spacing
+    local cava_widget = gears.table.join(properties, wibox.widget.base.make_widget())
     cava_widget.val = {}
 
     -- Assigning draw function prevents multiple string comparison in performance critical code

@@ -10,6 +10,7 @@ local beautiful = require("beautiful")
 local gears = require("gears")
 
 local util = {}
+util.math = {}
 
 --- Set wallpaper for screen s
 -- @param screen
@@ -64,5 +65,7 @@ function util.table_count(table)
 
     return count
 end
+
+function util.math.round(x) return x + 0.5 - (x + 0.5) % 1 end
 
 return util

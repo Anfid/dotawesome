@@ -170,10 +170,20 @@ bindings.keyboard = {
         awful.key({}, "XF86MonBrightnessDown", function() awful.spawn("light -U 5")                   end,
                   {description = "decrease brightness level", group = "media"}),
 
-        awful.key({}, "XF86AudioRaiseVolume",  function() awful.spawn("pactl set-sink-volume 0 +2%")  end,
+        awful.key({}, "XF86AudioRaiseVolume",
+                  function()
+                      awful.spawn("pactl set-sink-volume 0 +2%")
+                      awesome.emit_signal("volume::level")
+                  end,
                   {description = "increase volume level",     group = "media"}),
-        awful.key({}, "XF86AudioLowerVolume",  function() awful.spawn("pactl set-sink-volume 0 -2%")  end,
+
+        awful.key({}, "XF86AudioLowerVolume",
+                  function()
+                      awful.spawn("pactl set-sink-volume 0 -2%")
+                      awesome.emit_signal("volume::level")
+                  end,
                   {description = "decrease volume level",     group = "media"}),
+
         awful.key({}, "XF86AudioMute",         function() awful.spawn("pactl set-sink-mute 0 toggle") end,
                   {description = "mute volume",               group = "media"}),
 

@@ -26,6 +26,10 @@ theme.bg_normal  = "#3F3F3F"
 theme.bg_focus   = "#1E2320"
 theme.bg_urgent  = "#3F3F3F"
 theme.bg_systray = theme.bg_normal
+
+theme.color_green  = "#98971a"
+theme.color_yellow = "#d79921"
+theme.color_red    = "#cc241d"
 -- }}}
 
 -- {{{ Borders

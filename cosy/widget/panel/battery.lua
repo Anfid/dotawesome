@@ -3,7 +3,7 @@
 --
 -- Original by [deficient](https://github.com/deficient)
 --
--- @module cosy.widget.desktop
+-- @module cosy.widget.panel
 ---------------------------------------------------------------------------
 
 local awful = require("awful")
