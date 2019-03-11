@@ -9,8 +9,6 @@ local beautiful = require("beautiful")
 local gears = require("gears")
 local wibox = require("wibox")
 
-local dbg = require("dbg")
-
 local get_volume_cmd = "\\\
     SINK=$( pactl list short sinks \\\
     | sed -e 's,^\\([0-9][0-9]*\\)[^0-9].*,\\1,' | head -n 1 ); \\\
@@ -24,6 +22,7 @@ volume.defaults = {
     timeout = 3,
     orientation = "vertical",
     size = 100,
+    width = nil,
     bar_width = 3,
     indicator_width = 2,
     indicator_offset = 5,
@@ -40,7 +39,7 @@ local function draw_vertical(widget, context, cr, width, height)
     cr:set_line_width(widget.bar_width)
 
     local x = width / 2
-    local val = height - (widget.vol <= 100 and widget.vol or 100) * (widget.size / 100)
+    local val = widget.size - (widget.vol <= 100 and widget.vol or 100) * (widget.size / 100)
 
     local off = widget.offset
 
@@ -71,34 +70,34 @@ local function draw_horizontal(widget, context, cr, width, height)
     end
     cr:set_line_width(widget.bar_width)
 
-    local y = height / 2
-    local val = width - (widget.vol <= 100 and widget.vol or 100) * (widget.size / 100)
+    local y = (widget.width or height) / 2
+    local val = (widget.vol <= 100 and widget.vol or 100) * (widget.size / 100)
 
     local off = widget.offset
 
-    cr:move_to(width + off, y)
-    cr:line_to(val + off, y)
+    cr:move_to(0 - off, y)
+    cr:line_to(val - off, y)
     cr:stroke()
 
     cr:set_source(gears.color(beautiful.bg_focus .. "a0"))
-    cr:move_to(val + off, y)
-    cr:line_to(0 + off, y)
+    cr:move_to(val - off, y)
+    cr:line_to(widget.size - off, y)
     cr:stroke()
 
     cr:set_source(gears.color(beautiful.fg_normal .. "a0"))
     cr:set_line_width(widget.indicator_width)
     local i = widget.bar_width / 2 + widget.indicator_offset
-    cr:move_to(val + off, x - i)
-    cr:line_to(val + off, x + i)
+    cr:move_to(val - off, y - i)
+    cr:line_to(val - off, y + i)
     cr:stroke()
 end
 
 local function fit_vertical(widget, context, width, height)
-    return width, widget.size
+    return widget.width or width, widget.size
 end
 
 local function fit_horizontal(widget, context, width, height)
-    return widget.size, height
+    return widget.size, widget.width or height
 end
 
 function volume.new(properties)
@@ -147,7 +146,7 @@ function volume.new(properties)
     volume_widget.animation_timer = gears.timer.start_new(
         0.005,
         function()
-            if volume_widget.shown and volume_widget.offset ~= 0 then
+            if volume_widget.shown and volume_widget.offset > 0 then
                 volume_widget.offset = volume_widget.offset - 2
                 volume_widget:emit_signal("widget::updated")
                 return true
