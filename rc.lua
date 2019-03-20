@@ -104,6 +104,14 @@ function _G.construct_panel(s)
                            awful.button({ }, 3, function () awful.layout.inc(-1) end),
                            awful.button({ }, 4, function () awful.layout.inc( 1) end),
                            awful.button({ }, 5, function () awful.layout.inc(-1) end)))
+
+    local focus_gradient = gears.color.create_linear_pattern({
+            type = "linear",
+            from = {0, 0},
+            to = {global.panel_size, 0},
+            stops = { {0, beautiful.bg_focus.."f0"}, {1, "#00000000"} }
+        })
+
     -- Create a taglist widget
     s.taglist = awful.widget.taglist(
         s,
@@ -112,7 +120,7 @@ function _G.construct_panel(s)
         {
             align = "center",
             bg_normal = beautiful.bg_normal .. "a0",
-            bg_focus = beautiful.bg_focus .. "c0",
+            bg_focus = focus_gradient,
             bg_urgent = beautiful.bg_urgent .. "c0",
         },
         nil,
@@ -126,8 +134,8 @@ function _G.construct_panel(s)
         {
             align = "center",
             disable_task_name = true,
-            bg_normal = beautiful.bg_normal .. "a0",
-            bg_focus = beautiful.bg_focus .. "c0",
+            bg_normal = "#00000000",
+            bg_focus = focus_gradient,
             bg_urgent = beautiful.bg_urgent .. "c0",
         },
         nil,
