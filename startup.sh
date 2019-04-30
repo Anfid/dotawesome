@@ -9,7 +9,7 @@ function run-unique {
 
 export LC_ALL=C
 
-setxkbmap -layout us,ru -option 'grp:alt_shift_toggle'
+setxkbmap -layout us,ru -variant colemak, -option 'grp:alt_shift_toggle'
 run-unique compton
 run-unique dunst -conf "$HOME/.config/dunst/dunstrc"
 run-unique cava -p "$HOME/.config/cava/raw"
