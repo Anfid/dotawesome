@@ -29,7 +29,7 @@ volume.defaults = {
 }
 
 local function draw_vertical(widget, context, cr, width, height)
-    if widget.vol >= 100 then
+    if widget.vol > 100 then
         cr:set_source(gears.color(beautiful.color_red .. "a0"))
     elseif widget.vol >= 75 then
         cr:set_source(gears.color(beautiful.color_yellow .. "a0"))
@@ -150,7 +150,7 @@ function volume.new(properties)
                 volume_widget.offset = volume_widget.offset - 2
                 volume_widget:emit_signal("widget::updated")
                 return true
-            elseif not volume_widget.shown and volume_widget.offset ~= volume_widget.size then
+            elseif not volume_widget.shown and volume_widget.offset < volume_widget.size then
                 volume_widget.offset = volume_widget.offset + 1
                 volume_widget:emit_signal("widget::updated")
                 return true
