@@ -81,8 +81,8 @@ bindings.keyboard = {
             end,
             {description = "focus previous by index", group = "client"}),
 
-        awful.key({ modkey,           }, "w", function () menu.main:show() end,
-                  {description = "show main menu", group = "awesome"}),
+        --awful.key({ modkey,           }, "w", function () menu.main:show() end,
+                  --{description = "show main menu", group = "awesome"}),
 
         -- Standard program
         awful.key({ modkey,           }, "Return", function () awful.spawn(global.terminal) end,
@@ -198,7 +198,7 @@ bindings.keyboard = {
     ),
 
     client = gears.table.join(
-        awful.key({ modkey,           }, "f",
+        awful.key({ modkey,           }, "w",
             function (c)
                 c.fullscreen = not c.fullscreen
                 c:raise()
