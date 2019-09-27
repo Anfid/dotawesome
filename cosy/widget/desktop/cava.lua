@@ -11,6 +11,8 @@ local posix = require("posix")
 
 local round = require("cosy.util").math.round
 
+local tostring = tostring
+
 -- Constant, depends on cava configuration
 local cava_max = 1000
 

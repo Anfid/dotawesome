@@ -88,7 +88,7 @@ screen.connect_signal("property::geometry", cosy.util.set_wallpaper)
 local keyboardlayout = awful.widget.keyboardlayout()
 
 function _G.construct_panel(s)
-    cosy.widget.desktop.cava(
+    s.cava = cosy.widget.desktop.cava(
         s,
         {
             size = global.panel_size,

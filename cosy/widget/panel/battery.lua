@@ -184,6 +184,7 @@ function battery_widget:init(args)
     return self
 end
 
+-- TODO: restyle
 function battery_widget:draw(context, cr, width, height)
     cr:set_line_width(1)
 
