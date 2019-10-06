@@ -121,7 +121,7 @@ function _G.construct_panel(s)
             align = "center",
             bg_normal = beautiful.bg_normal .. "a0",
             bg_focus = focus_gradient,
-            bg_urgent = beautiful.bg_urgent .. "c0",
+            bg_urgent = beautiful.bg_urgent .. "00",
         },
         nil,
         wibox.layout.fixed.vertical())
@@ -136,7 +136,7 @@ function _G.construct_panel(s)
             disable_task_name = true,
             bg_normal = "#00000000",
             bg_focus = focus_gradient,
-            bg_urgent = beautiful.bg_urgent .. "c0",
+            bg_urgent = beautiful.bg_urgent .. "00",
         },
         nil,
         wibox.layout.fixed.vertical())
