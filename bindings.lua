@@ -5,6 +5,7 @@
 -- @module bindings
 ---------------------------------------------------------------------------
 
+-- TODO: Set better volume control command. See volume widget for reference
 local awful = require("awful")
 local beautiful = require("beautiful")
 local gears = require("gears")
@@ -163,6 +164,32 @@ bindings.keyboard = {
                       awful.spawn.with_shell("$HOME/.scripts/screen-lock.sh")
                   end,
                   {description = "lock screen", group = "awesome"}),
+
+        -- Screenshot
+        awful.key({}, "Print",
+                  function()
+                      local geo = awful.screen.focused().geometry
+                      awful.spawn.with_shell("maim --geometry="..geo.width..'x'..geo.height..'+'..geo.x..'+'..geo.y.." $HOME/Pictures/Screenshots/$(date '+%Y-%0m-%0d-%0H:%M:%S:%3N').png")
+                  end,
+                  {description = "Take a screenshot of focused screen", group = "media"}),
+
+        awful.key({ "Mod1" }, "Print",
+                  function()
+                      awful.spawn.with_shell("maim --window=".. client.focus.window or 'root' .." $HOME/Pictures/Screenshots/$(date '+%Y-%0m-%0d-%0H:%M:%S:%3N').png")
+                  end,
+                  {description = "Take a screenshot of focused window", group = "media"}),
+
+        awful.key({ "Control" }, "Print",
+                  function()
+                      awful.spawn.with_shell("maim -s $HOME/Pictures/Screenshots/$(date +%Y-%0m-%0d-%0H:%M:%S:%3N.png)")
+                  end,
+                  {description = "Interactive screenshot", group = "media"}),
+
+        awful.key({ modkey }, "Print",
+                  function()
+                      awful.spawn.with_shell("maim -s | xclip -selection clipboard -t image/png")
+                  end,
+                  {description = "Interactive screenshot to clipboard", group = "media"}),
 
         -- Media Keys
         awful.key({}, "XF86MonBrightnessUp",   function() awful.spawn("light -A 5")                   end,
