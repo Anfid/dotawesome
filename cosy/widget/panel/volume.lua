@@ -150,7 +150,7 @@ function volume.new(properties)
                 volume_widget.offset = volume_widget.offset - 2
                 volume_widget:emit_signal("widget::updated")
                 return true
-            elseif not volume_widget.shown and volume_widget.offset < volume_widget.size then
+            elseif not volume_widget.shown and volume_widget.offset < (volume_widget.size + volume_widget.indicator_width / 2)  then
                 volume_widget.offset = volume_widget.offset + 1
                 volume_widget:emit_signal("widget::updated")
                 return true
