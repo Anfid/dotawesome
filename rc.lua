@@ -168,7 +168,7 @@ function _G.construct_panel(s)
             cosy.widget.panel.volume(),
             cosy.widget.panel.battery({}),
             keyboardlayout,
-            --s.systray,
+            s.systray,
             cosy.widget.textclock,
             s.layoutbox,
         },
