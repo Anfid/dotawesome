@@ -13,6 +13,7 @@ local hotkeys_popup = require("awful.hotkeys_popup").widget
 local menu = require("menu")
 
 local global = require("global")
+local audio = require("cosy").audio
 
 local client = _G.client
 local awesome = _G.awesome
@@ -192,35 +193,25 @@ bindings.keyboard = {
                   {description = "Interactive screenshot to clipboard", group = "media"}),
 
         -- Media Keys
-        awful.key({}, "XF86MonBrightnessUp",   function() awful.spawn("light -A 5")                   end,
+        awful.key({}, "XF86MonBrightnessUp",   function() awful.spawn("light -A 5") end,
                   {description = "increase brightness level", group = "media"}),
-        awful.key({}, "XF86MonBrightnessDown", function() awful.spawn("light -U 5")                   end,
+        awful.key({}, "XF86MonBrightnessDown", function() awful.spawn("light -U 5") end,
                   {description = "decrease brightness level", group = "media"}),
 
-        awful.key({}, "XF86AudioRaiseVolume",
-                  function()
-                      awful.spawn("pactl set-sink-volume 0 +2%")
-                      awesome.emit_signal("volume::level")
-                  end,
+        awful.key({}, "XF86AudioRaiseVolume",  function() audio:volume_set("+2%")     end,
                   {description = "increase volume level",     group = "media"}),
-
-        awful.key({}, "XF86AudioLowerVolume",
-                  function()
-                      awful.spawn("pactl set-sink-volume 0 -2%")
-                      awesome.emit_signal("volume::level")
-                  end,
+        awful.key({}, "XF86AudioLowerVolume",  function() audio:volume_set("-2%")     end,
                   {description = "decrease volume level",     group = "media"}),
-
-        awful.key({}, "XF86AudioMute",         function() awful.spawn("pactl set-sink-mute 0 toggle")   end,
+        awful.key({}, "XF86AudioMute",         function() audio:volume_mute("toggle") end,
                   {description = "mute volume",               group = "media"}),
 
-        awful.key({}, "XF86AudioPlay",         function() awful.spawn("cmus-remote --pause")            end,
+        awful.key({}, "XF86AudioPlay",  function() awful.spawn("cmus-remote --pause") end,
                   {description = "toggle pause",              group = "media"}),
-        awful.key({}, "XF86AudioPause",        function() awful.spawn("cmus-remote --stop")             end,
+        awful.key({}, "XF86AudioPause", function() awful.spawn("cmus-remote --stop")  end,
                   {description = "pause",                     group = "media"}),
-        awful.key({}, "XF86AudioNext",         function() awful.spawn("cmus-remote --next")             end,
+        awful.key({}, "XF86AudioNext",  function() awful.spawn("cmus-remote --next")  end,
                   {description = "next soundtrack",           group = "media"}),
-        awful.key({}, "XF86AudioPrev",         function() awful.spawn("cmus-remote --prev")             end,
+        awful.key({}, "XF86AudioPrev",  function() awful.spawn("cmus-remote --prev")  end,
                   {description = "previous soundtrack",       group = "media"})
     ),
 

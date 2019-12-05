@@ -8,12 +8,7 @@ local awesome = _G.awesome
 local beautiful = require("beautiful")
 local gears = require("gears")
 local wibox = require("wibox")
-
-local get_volume_cmd = "\\\
-    SINK=$( pactl list short sinks \\\
-    | sed -e 's,^\\([0-9][0-9]*\\)[^0-9].*,\\1,' | head -n 1 ); \\\
-    pactl list sinks | grep '^[[:space:]]Volume:' \\\
-    | head -n $(( $SINK + 1 )) | tail -n 1 | sed -e 's,.* \\([0-9][0-9]*\\)%.*,\\1,'"
+local audio = require("cosy.audio")
 
 local volume = {}
 volume.mt = {}
@@ -118,15 +113,7 @@ function volume.new(properties)
     end
 
     function volume_widget:update()
-        local handle = io.popen(get_volume_cmd)
-        local vol = handle:read("*n")
-        handle:close()
-
-        if vol ~= nil then
-            self.vol = vol
-        else
-            self.vol = 0
-        end
+        self.vol = audio:volume_get() or 0
 
         volume_widget.shown = true
         self.animation_timer:again()
@@ -161,7 +148,7 @@ function volume.new(properties)
 
     volume_widget:update()
 
-    awesome.connect_signal("volume::level", function() volume_widget:update() end)
+    awesome.connect_signal("audio::volume", function() volume_widget:update() end)
 
     return volume_widget
 end
