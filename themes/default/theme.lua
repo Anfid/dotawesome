@@ -33,7 +33,7 @@ theme.color_red    = "#cc241d"
 
 -- {{{ Borders
 theme.useless_gap   = dpi(0)
-theme.border_width  = dpi(1)
+theme.border_width  = dpi(0)
 theme.border_normal = "#282828"
 theme.border_focus  = "#98971a"
 theme.border_marked = "#d79921"
