@@ -4,7 +4,6 @@
 -- @module cosy.widget.panel
 ---------------------------------------------------------------------------
 
-local awesome = _G.awesome
 local beautiful = require("beautiful")
 local gears = require("gears")
 local wibox = require("wibox")
@@ -148,7 +147,7 @@ function volume.new(properties)
 
     volume_widget:update()
 
-    awesome.connect_signal("audio::volume", function() volume_widget:update() end)
+    audio.connect_signal("audio::volume", function() volume_widget:update() end)
 
     return volume_widget
 end

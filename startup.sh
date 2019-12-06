@@ -12,7 +12,6 @@ export LC_ALL=C
 setxkbmap -layout us,ru -variant colemak, -option 'grp:toggle'
 run-unique compton
 run-unique dunst -conf "$HOME/.config/dunst/dunstrc"
-run-unique cava -p "$HOME/.config/cava/raw"
 run-unique nm-applet
 
 run-unique telegram-desktop
