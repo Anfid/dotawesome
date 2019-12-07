@@ -12,6 +12,7 @@ require("awful.autofocus")
 -- Theme handling library
 local beautiful = require("beautiful")
 beautiful.init(gears.filesystem.get_configuration_dir() .. "themes/default/theme.lua")
+local dpi = require("beautiful.xresources").apply_dpi
 
 -- Widget and layout library
 local wibox = require("wibox")
@@ -165,7 +166,10 @@ function _G.construct_panel(s)
         s.tasklist, -- Middle widget
         { -- Right widgets
             layout = wibox.layout.fixed.vertical,
-            cosy.widget.panel.volume(),
+            cosy.widget.panel.volume({
+                indicator_width = dpi(2),
+                indicator_offset = dpi(5),
+            }),
             cosy.widget.panel.battery({}),
             keyboardlayout,
             s.systray,
