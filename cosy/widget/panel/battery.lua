@@ -188,7 +188,14 @@ end
 function battery_widget:draw(context, cr, width, height)
     cr:set_line_width(1)
 
-    cr:set_source(gears.color("#a0000080"))
+    if self.val <= 5 then
+        cr:set_source(gears.color(beautiful.color_red.."60"))
+    elseif self.val <= 15 then
+        cr:set_source(gears.color(beautiful.color_yellow.."60"))
+    else
+        cr:set_source(gears.color("#ffffff60"))
+    end
+
     cr:rectangle(11.5, height - self.val - 1.5, 23, self.val)
     cr:fill_preserve()
     cr:stroke()
