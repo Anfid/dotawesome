@@ -62,7 +62,7 @@ end
 function audio:init_default_sink()
     awful.spawn.easy_async("pactl list sinks short",
         function(out)
-            self.sink = tonumber(out:match("^(%d+) .*IDLE\n") or out:match("^(%d+).*RUNNING\n"))
+            self.sink = tonumber(out:match("^(%d+)%s+.*%s+IDLE\n") or out:match("^(%d+)%s+.*%s+RUNNING\n"))
             self.emit_signal("audio::volume")
         end
     )
@@ -96,19 +96,27 @@ end
 
 function audio:volume_get(sink)
     local sink = sink or self.sink
-    return self.volume[sink]
+    if sink ~= nil then
+        return self.volume[sink]
+    else
+        return 0
+    end
 end
 
 function audio:volume_set(val, sink)
     local sink = sink or self.sink
-    awful.spawn("pactl set-sink-volume "..sink.." "..val)
+    if sink ~= nil then
+        awful.spawn("pactl set-sink-volume "..sink.." "..val)
+    end
 end
 
 function audio:volume_mute(val, sink)
     local sink = sink or self.sink
     local val = val and tostring(val) or "toggle"
 
-    awful.spawn("pactl set-sink-mute "..sink.." "..tostring(val))
+    if sink ~= nil then
+        awful.spawn("pactl set-sink-mute "..sink.." "..val)
+    end
 end
 
 function audio.connect_signal(name, callback)
@@ -138,8 +146,8 @@ end
 audio.mt = {}
 
 function audio.mt:__gc()
-    posix_signal.kill(self.subscription_pid)
-    posix_signal.kill(self.cava_pid)
+    posix_signal.kill(audio.subscription_pid)
+    posix_signal.kill(audio.cava_pid)
 end
 
 audio:init_pulse_subscription()
@@ -148,5 +156,12 @@ audio:sink_status_update()
 audio:init_cava()
 
 audio:connect_signal("audio::volume", function() require("dbg").notify("Volume emitted") end)
+
+if _G._VERSION == "Lua 5.1" then
+    -- Lua 5.1 and LuaJIT without Lua5.2 compat does not support __gc on tables, so we need to use newproxy
+    local g = newproxy(false)
+    debug.setmetatable(g, {__gc = audio.mt.__gc})
+    audio._garbage = g
+end
 
 return setmetatable(audio, audio.mt)
