@@ -56,7 +56,7 @@ function audio.on_event.sink.new(id)
 end
 
 function audio:init_cava()
-    audio.cava_pid = awful.spawn.with_shell("cava -p $HOME/.config/cava/raw")
+    audio.cava_pid = awful.spawn("cava -p ".. require("gears.filesystem").get_configuration_dir().."/cava_raw.conf")
 end
 
 function audio:init_default_sink()

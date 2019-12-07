@@ -13,8 +13,9 @@ local round = require("cosy.util").math.round
 
 local tostring = tostring
 
--- Constant, depends on cava configuration
+-- Constants, depend on cava configuration
 local cava_max = 1000
+local cava_bars = 50
 
 local cava = {}
 cava.mt = {}
@@ -26,7 +27,7 @@ cava.defaults = {
     size = 45,
     zero_size = 2,
     spacing = 5,
-    update_time = 0.05,
+    update_time = 0.04,
 }
 
 -- Throws exception
@@ -39,13 +40,13 @@ local function parse_fifo()
     posix.close(cava_fifo)
 
     local cava_val = {}
-    for match in cava_string:match("[^\n]+"):gmatch("[^;]+") do
+    for match in cava_string:match("[%d;]+\n$"):gmatch("(%d+);") do
         table.insert(cava_val, match)
     end
 
     -- Assert prevents blinking. Sometimes because of simultaneous access to fifo incomplete string may be received.
     -- This way it may freeze a little sometimes, but it won't blink
-    assert(#cava_val == 50, "Expected length of the table is 50. Actual result: " .. tostring(#cava_val))
+    assert(#cava_val == cava_bars, "Expected length of the table is 50. Actual result: " .. tostring(#cava_val))
 
     return cava_val
 end
@@ -59,7 +60,7 @@ local function update_global_val()
 end
 
 local function draw_top(cava_widget, context, cr, width, height)
-    local w = width / 50 - cava_widget.spacing  -- block width
+    local w = width / cava_bars - cava_widget.spacing  -- block width
     local d = w + cava_widget.spacing           -- block distance
 
     cr:set_source(gears.color(beautiful.fg_normal .. "a0"))
@@ -77,7 +78,7 @@ local function draw_top(cava_widget, context, cr, width, height)
 end
 
 local function draw_left(cava_widget, context, cr, width, height)
-    local w = height / 50 - cava_widget.spacing -- block width
+    local w = height / cava_bars - cava_widget.spacing -- block width
     local d = w + cava_widget.spacing           -- block distance
 
     cr:set_source(gears.color(beautiful.fg_normal .. "a0"))
@@ -95,7 +96,7 @@ local function draw_left(cava_widget, context, cr, width, height)
 end
 
 local function draw_bottom(cava_widget, context, cr, width, height)
-    local w = width / 50 - cava_widget.spacing  -- block width
+    local w = width / cava_bars - cava_widget.spacing  -- block width
     local d = w + cava_widget.spacing           -- block distance
 
     cr:set_source(gears.color(beautiful.fg_normal .. "a0"))
@@ -113,7 +114,7 @@ local function draw_bottom(cava_widget, context, cr, width, height)
 end
 
 local function draw_right(cava_widget, context, cr, width, height)
-    local w = height / 50 - cava_widget.spacing -- block width
+    local w = height / cava_bars - cava_widget.spacing -- block width
     local d = w + cava_widget.spacing           -- block distance
 
     cr:set_source(gears.color(beautiful.fg_normal .. "a0"))
@@ -168,7 +169,7 @@ function cava.new(s, properties)
         error("Wrong cava widget position")
     end
 
-    for i = 1, 50 do
+    for i = 1, cava_bars do
         cava_widget.val[i] = 0
     end
 
@@ -179,7 +180,7 @@ function cava.new(s, properties)
 
         local cava_val = _G.cava_global_val
 
-        assert(#cava_val == 50, "Global cava buffer has wrong amount of values")
+        assert(#cava_val == cava_bars, "Global cava buffer has wrong amount of values")
 
         -- Adjust values to fit into the desired size
         local cava_val_fit = {}
