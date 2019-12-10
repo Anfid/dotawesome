@@ -6,6 +6,7 @@
 
 local desktop = {
     cava = require("cosy.widget.desktop.cava"),
+    stat = require("cosy.widget.desktop.stat"),
 }
 
 return desktop
