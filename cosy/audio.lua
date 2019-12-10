@@ -8,11 +8,15 @@ local awful = require("awful")
 local posix_signal = require("posix.signal")
 local naughty = require("naughty")
 
-local audio = {}
-audio.volume = {}
-audio.mute = {}
-audio.sink = 0
-audio.on_event = {}
+local tonumber = tonumber
+local tostring = tostring
+
+local audio = {
+    volume = {},
+    mute = {},
+    sink = 0,
+    on_event = {},
+}
 
 local signals = {}
 
