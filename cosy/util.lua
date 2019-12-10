@@ -11,6 +11,7 @@ local gears = require("gears")
 
 local util = {}
 util.math = {}
+util.fs = {}
 
 --- Set wallpaper for screen s
 -- @param screen
@@ -66,6 +67,16 @@ function util.table_count(table)
     return count
 end
 
+
 function util.math.round(x) return x + 0.5 - (x + 0.5) % 1 end
+
+
+function util.fs.read(file)
+    local file = io.open(file)
+    if not file then return nil end
+    local text = file:read('*all')
+    file:close()
+    return text
+end
 
 return util
