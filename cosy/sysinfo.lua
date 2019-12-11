@@ -10,21 +10,42 @@ local util = require("cosy.util")
 local tonumber = tonumber
 
 local sysinfo = {
+    -- CPU information
     cpu = {
+        -- Total core count
         cores = 0,
+        -- CPU usage per core
         load = {
+            total = 0,
             _prev = nil,
             _this = nil,
         },
+        -- Temperature in millidegrees celcius per physical core
+        temp = {
+            total = 0,
+        },
+        -- Virtual to physical core id
+        proc_to_core = {},
     }
 }
 
 local signals = {}
 
+function sysinfo.cpu:init()
+    local cpuinfo = util.fs.read("/proc/cpuinfo")
+    for procinfo in cpuinfo:gmatch(".-\n\n") do
+        local id, coreid = procinfo:match(
+            "processor%s+:%s+(%d+).*"..
+            "core id%s+:%s+(%d+).*"
+        )
+
+        self.proc_to_core[id] = coreid
+    end
+    self.cores = #self.proc_to_core
+end
+
 function sysinfo.cpu:update()
     sysinfo.cpu:update_load()
-
-    self.cores = #self.load
 
     sysinfo.emit_signal("cpu::updated")
 end
@@ -101,6 +122,8 @@ function sysinfo.emit_signal(name, ...)
         cb(...)
     end
 end
+
+sysinfo.cpu:init()
 
 sysinfo.refresh_timer = gears.timer.start_new(
     1,
