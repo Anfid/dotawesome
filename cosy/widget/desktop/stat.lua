@@ -3,6 +3,7 @@
 --
 -- @module cosy.widget.desktop
 ---------------------------------------------------------------------------
+local d = require("dbg")
 
 local gears = require("gears")
 local beautiful = require("beautiful")
@@ -16,10 +17,16 @@ local round = require("cosy.util").math.round
 
 local tostring = tostring
 
-local stat = {}
+local stat = {
+    -- arcs grouped by color
+    arcs = {}
+}
 stat.mt = {}
 
-stat.defaults = {}
+stat.defaults = {
+    bg_color = gears.color(beautiful.fg_normal.."40"),
+    fg_color = gears.color(beautiful.fg_normal.."a0"),
+}
 
 stat.defaults.rings = {
     --[[
@@ -197,32 +204,97 @@ stat.defaults.rings = {
     },
 }
 
-local function draw(self, context, cr, width, height)
-    for i = 1, 4 do
-    local pt = stat.defaults.rings[i + 1]
-    local x, y = pt['x'], pt['y']
-    local r, w = pt['radius'], pt['thickness']
-    local sa, ea = pt['start_angle'], pt['end_angle']
-    local bgc, bga = pt['bg_color'], pt['bg_alpha']
-    local fgc, fga = pt['fg_color'], pt['fg_alpha']
+local function setup_arcs(self, cr)
+    self.arcs = {}
+    local bg_color = stat.defaults.bg_color
+    local fg_color = stat.defaults.fg_color
+    self.arcs[bg_color] = {}
+    self.arcs[fg_color] = {}
+    local cores = sysinfo.cpu.cores
 
-    local t = sysinfo.cpu.load[i]
+    local x = 160
+    local y = 155
+    local w = 4
+    local angle_start = 3 * (pi / 180)
+    local angle_end = 118 * (pi / 180)
 
-    local angle_0 = sa * (2 * pi / 360) - pi / 2
-    local angle_f = ea * (2 * pi / 360) - pi / 2
-    local t_arc = t * (angle_f - angle_0)
+    -- CPU
+    for i = 1, sysinfo.cpu.cores do
+        local r = 75 + (6 * (i - 1))
+        local val = sysinfo.cpu.load[i]
 
-    cr:set_line_width(w)
+        local bg_arc = {
+            x = x,
+            y = y,
+            r = r,
+            w = w,
+            angle_start = angle_start,
+            angle_end = angle_end,
+        }
 
-    cr:set_source(gears.color(beautiful.fg_normal.."40"))
-    cr:arc(x, y, r, angle_0, angle_f)
-    cr:stroke()
+        local fg_arc = {
+            x = x,
+            y = y,
+            r = r,
+            w = w,
+            angle_start = angle_start,
+            angle_end = angle_start + val * (angle_end - angle_start),
+        }
 
-    cr:set_source(gears.color(beautiful.fg_normal.."a0"))
-    cr:arc(x, y, r, angle_0, angle_0 + t_arc)
-
-    cr:stroke()
+        table.insert(self.arcs[bg_color], bg_arc)
+        table.insert(self.arcs[fg_color], fg_arc)
     end
+
+    -- RAM
+    do
+        local r = 84
+        local w = 22.5
+        local angle_end = 239 * (pi / 180)
+        local angle_start = 122 * (pi / 180)
+        local val = (sysinfo.mem.total - sysinfo.mem.free) / sysinfo.mem.total
+
+        local bg_arc = {
+            x = x,
+            y = y,
+            r = r,
+            w = w,
+            angle_start = angle_start,
+            angle_end = angle_end,
+        }
+
+        local fg_arc = {
+            x = x,
+            y = y,
+            r = r,
+            w = w,
+            angle_start = angle_start,
+            angle_end = angle_start + val * (angle_end - angle_start),
+        }
+
+        table.insert(self.arcs[bg_color], bg_arc)
+        table.insert(self.arcs[fg_color], fg_arc)
+    end
+end
+
+local function draw_arcs(self, cr)
+    local c = 0
+    for color, arcs in pairs(self.arcs) do
+        cr:set_source(color)
+        for i, arc in pairs(arcs) do
+            c = c + 1
+            cr:set_line_width(arc.w)
+            cr:new_sub_path()
+            cr:arc(arc.x, arc.y, arc.r, arc.angle_start, arc.angle_end)
+            -- TODO: Fix line width issue and remove
+            cr:stroke()
+        end
+        cr:stroke()
+    end
+end
+
+local function draw(self, context, cr, width, height)
+    self:setup_arcs(cr)
+    self:draw_arcs(cr)
 end
 
 -- TODO: Document properties
@@ -240,6 +312,8 @@ function stat.new(s, properties)
     if not properties.y then properties.y = 0 end
 
     function stat_widget:fit(context, width, height) return width, height end
+    stat_widget.setup_arcs = setup_arcs
+    stat_widget.draw_arcs = draw_arcs
     stat_widget.draw = draw
 
     local stat_box = wibox({
