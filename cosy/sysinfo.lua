@@ -26,13 +26,20 @@ local sysinfo = {
         },
         -- Virtual to physical core id
         proc_to_core = {},
-    }
+    },
+    mem = {
+        -- Total RAM in kB
+        total = 0,
+        -- Free RAM in kB
+        free = 0,
+    },
 }
 
 local signals = {}
 
 function sysinfo.cpu:init()
     local cpuinfo = util.fs.read("/proc/cpuinfo")
+    local core_count = 0
     for procinfo in cpuinfo:gmatch(".-\n\n") do
         local id, coreid = procinfo:match(
             "processor%s+:%s+(%d+).*"..
@@ -40,8 +47,9 @@ function sysinfo.cpu:init()
         )
 
         self.proc_to_core[id] = coreid
+        core_count = core_count + 1
     end
-    self.cores = #self.proc_to_core
+    self.cores = core_count
 end
 
 function sysinfo.cpu:update()
@@ -99,6 +107,16 @@ function sysinfo.cpu:update_load()
     end
 end
 
+function sysinfo.mem:update()
+    local stat = util.fs.read("/proc/meminfo")
+    local total, free = stat:match(
+        "MemTotal:%s+(%d+).*"..
+        "MemFree:%s+(%d+).*"
+    )
+    self.total = tonumber(total)
+    self.free = tonumber(free)
+end
+
 function sysinfo.connect_signal(name, callback)
     signals[name] = signals[name] or {}
     table.insert(signals[name], callback)
@@ -124,11 +142,13 @@ function sysinfo.emit_signal(name, ...)
 end
 
 sysinfo.cpu:init()
+sysinfo.mem:update()
 
 sysinfo.refresh_timer = gears.timer.start_new(
     1,
     function()
         sysinfo.cpu:update()
+        sysinfo.mem:update()
         return true
     end
 )
