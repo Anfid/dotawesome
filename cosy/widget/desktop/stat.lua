@@ -214,7 +214,7 @@ local function setup_arcs(self, cr)
 
     local x = 160
     local y = 155
-    local w = 4
+    local w = 5
     local angle_start = 3 * (pi / 180)
     local angle_end = 118 * (pi / 180)
 
