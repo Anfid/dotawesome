@@ -32,6 +32,8 @@ local sysinfo = {
         total = 0,
         -- Free RAM in kB
         free = 0,
+        -- Available RAM in kB
+        available = 0,
     },
 }
 
@@ -53,7 +55,7 @@ function sysinfo.cpu:init()
 end
 
 function sysinfo.cpu:update()
-    sysinfo.cpu:update_load()
+    self:update_load()
 
     sysinfo.emit_signal("cpu::updated")
 end
@@ -109,12 +111,14 @@ end
 
 function sysinfo.mem:update()
     local stat = util.fs.read("/proc/meminfo")
-    local total, free = stat:match(
+    local total, free, avail = stat:match(
         "MemTotal:%s+(%d+).*"..
-        "MemFree:%s+(%d+).*"
+        "MemFree:%s+(%d+).*"..
+        "MemAvailable:%s+(%d+).*"
     )
     self.total = tonumber(total)
     self.free = tonumber(free)
+    self.available = tonumber(avail)
 end
 
 function sysinfo.connect_signal(name, callback)

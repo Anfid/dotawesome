@@ -8,14 +8,11 @@ local d = require("dbg")
 local gears = require("gears")
 local beautiful = require("beautiful")
 local wibox = require("wibox")
-local posix = require("posix")
 local sysinfo = require("cosy.sysinfo")
 
 local pi = math.pi
 
 local round = require("cosy.util").math.round
-
-local tostring = tostring
 
 local stat = {
     -- arcs grouped by color
@@ -210,7 +207,6 @@ local function setup_arcs(self, cr)
     local fg_color = stat.defaults.fg_color
     self.arcs[bg_color] = {}
     self.arcs[fg_color] = {}
-    local cores = sysinfo.cpu.cores
 
     local x = 160
     local y = 155
@@ -251,7 +247,7 @@ local function setup_arcs(self, cr)
         local w = 22.5
         local angle_end = 239 * (pi / 180)
         local angle_start = 122 * (pi / 180)
-        local val = (sysinfo.mem.total - sysinfo.mem.free) / sysinfo.mem.total
+        local val = (sysinfo.mem.total - sysinfo.mem.available) / sysinfo.mem.total
 
         local bg_arc = {
             x = x,
