@@ -188,7 +188,7 @@ bindings.keyboard = {
 
         awful.key({ modkey }, "Print",
                   function()
-                      awful.spawn.with_shell("maim -s | xclip -selection clipboard -t image/png")
+                      awful.spawn.with_shell("flameshot gui")
                   end,
                   {description = "Interactive screenshot to clipboard", group = "media"}),
 
