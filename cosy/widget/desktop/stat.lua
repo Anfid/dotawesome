@@ -10,12 +10,11 @@ local beautiful = require("beautiful")
 local wibox = require("wibox")
 local sysinfo = require("cosy.sysinfo")
 
+local dpi = beautiful.xresources.apply_dpi
 local pi = math.pi
-
-local round = require("cosy.util").math.round
+local floor = math.floor
 
 local stat = {
-    -- arcs grouped by color
     arcs = {}
 }
 stat.mt = {}
@@ -205,18 +204,26 @@ local function setup_arcs(self, cr)
     self.arcs = {}
     local bg_color = stat.defaults.bg_color
     local fg_color = stat.defaults.fg_color
-    self.arcs[bg_color] = {}
-    self.arcs[fg_color] = {}
+    -- TODO: replace const width with configurable
+    local width = dpi(24)
 
-    local x = 160
-    local y = 155
-    local w = 5
+    local x = dpi(160)
+    local y = dpi(100)
     local angle_start = 3 * (pi / 180)
     local angle_end = 118 * (pi / 180)
 
+    local cores = sysinfo.cpu.cores
+    local w
+    if 3 * cores > width then
+        w = 2
+        width = 3 * cores
+    else
+        w = floor(width / cores) - 1
+    end
+
     -- CPU
     for i = 1, sysinfo.cpu.cores do
-        local r = 75 + (6 * (i - 1))
+        local r = 75 + ((w + 1) * (i - 1))
         local val = sysinfo.cpu.load[i]
 
         local bg_arc = {
@@ -226,6 +233,7 @@ local function setup_arcs(self, cr)
             w = w,
             angle_start = angle_start,
             angle_end = angle_end,
+            color = bg_color,
         }
 
         local fg_arc = {
@@ -235,16 +243,17 @@ local function setup_arcs(self, cr)
             w = w,
             angle_start = angle_start,
             angle_end = angle_start + val * (angle_end - angle_start),
+            color = fg_color,
         }
 
-        table.insert(self.arcs[bg_color], bg_arc)
-        table.insert(self.arcs[fg_color], fg_arc)
+        table.insert(self.arcs, bg_arc)
+        table.insert(self.arcs, fg_arc)
     end
 
     -- RAM
     do
-        local r = 84
-        local w = 22.5
+        local r = 75 + width / 2
+        local w = width
         local angle_end = 239 * (pi / 180)
         local angle_start = 122 * (pi / 180)
         local val = (sysinfo.mem.total - sysinfo.mem.available) / sysinfo.mem.total
@@ -256,6 +265,7 @@ local function setup_arcs(self, cr)
             w = w,
             angle_start = angle_start,
             angle_end = angle_end,
+            color = bg_color,
         }
 
         local fg_arc = {
@@ -265,25 +275,20 @@ local function setup_arcs(self, cr)
             w = w,
             angle_start = angle_start,
             angle_end = angle_start + val * (angle_end - angle_start),
+            color = fg_color,
         }
 
-        table.insert(self.arcs[bg_color], bg_arc)
-        table.insert(self.arcs[fg_color], fg_arc)
+        table.insert(self.arcs, bg_arc)
+        table.insert(self.arcs, fg_arc)
     end
 end
 
 local function draw_arcs(self, cr)
-    local c = 0
-    for color, arcs in pairs(self.arcs) do
-        cr:set_source(color)
-        for i, arc in pairs(arcs) do
-            c = c + 1
-            cr:set_line_width(arc.w)
-            cr:new_sub_path()
-            cr:arc(arc.x, arc.y, arc.r, arc.angle_start, arc.angle_end)
-            -- TODO: Fix line width issue and remove
-            cr:stroke()
-        end
+    for i, arc in pairs(self.arcs) do
+        cr:set_source(arc.color)
+        cr:set_line_width(arc.w)
+        cr:new_sub_path()
+        cr:arc(arc.x, arc.y, arc.r, arc.angle_start, arc.angle_end)
         cr:stroke()
     end
 end
