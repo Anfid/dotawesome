@@ -152,7 +152,7 @@ function battery_widget:init(args)
 
     self.alert_threshold = args.alert_threshold or 5
     self.alert_timeout = args.alert_timeout or 0
-    self.alert_title = args.alert_title or "Low battery !"
+    self.alert_title = args.alert_title or "Low battery!"
     self.alert_text = args.alert_text or "${AC_BAT}${time_est}"
 
     self.widget = setmetatable(wibox.widget.base.make_widget(), {__index = self})
@@ -188,7 +188,9 @@ end
 function battery_widget:draw(context, cr, width, height)
     cr:set_line_width(1)
 
-    if self.val <= 5 then
+    if self:get_state().state == "charging" then
+        cr:set_source(gears.color(beautiful.color_green.."60"))
+    elseif self.val <= 5 then
         cr:set_source(gears.color(beautiful.color_red.."60"))
     elseif self.val <= 15 then
         cr:set_source(gears.color(beautiful.color_yellow.."60"))
