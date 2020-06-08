@@ -20,10 +20,6 @@ local sysinfo = {
             _prev = nil,
             _this = nil,
         },
-        -- Temperature in millidegrees celcius per physical core
-        temp = {
-            total = 0,
-        },
         -- Virtual to physical core id
         proc_to_core = {},
     },
@@ -35,12 +31,19 @@ local sysinfo = {
         -- Available RAM in kB
         available = 0,
     },
+    temp = {
+        -- Temperature in millidegrees celcius per physical core
+        cpu = {
+            path = nil,
+            core = {},
+        }
+    }
 }
 
 local signals = {}
 
 function sysinfo.cpu:init()
-    local cpuinfo = util.fs.read("/proc/cpuinfo")
+    local cpuinfo = util.file.read("/proc/cpuinfo")
     local core_count = 0
     for procinfo in cpuinfo:gmatch(".-\n\n") do
         local id, coreid = procinfo:match(
@@ -64,7 +67,7 @@ function sysinfo.cpu:update_load()
     self.load._prev = self.load._this
     self.load._this = {}
 
-    local stat = util.fs.read("/proc/stat")
+    local stat = util.file.read("/proc/stat")
 
     for core, user, nice, system, idle, iowait, irq, softirq, steal, guest, guest_nice
         in stat:gmatch("cpu(%d*)%s+(%d+)%s+(%d+)%s+(%d+)%s+(%d+)%s+(%d+)%s+(%d+)%s+(%d+)%s+(%d+)%s+(%d+)%s+(%d+)")
@@ -110,7 +113,7 @@ function sysinfo.cpu:update_load()
 end
 
 function sysinfo.mem:update()
-    local stat = util.fs.read("/proc/meminfo")
+    local stat = util.file.read("/proc/meminfo")
     local total, free, avail = stat:match(
         "MemTotal:%s+(%d+).*"..
         "MemFree:%s+(%d+).*"..
@@ -119,6 +122,18 @@ function sysinfo.mem:update()
     self.total = tonumber(total)
     self.free = tonumber(free)
     self.available = tonumber(avail)
+end
+
+function sysinfo.temp:init()
+    for line in io.popen("for x in /sys/class/hwmon/hwmon*; do printf \"%s \" $x; cat $x/name; done"):lines() do
+        local path, name = line:match("([^%s]-)%s+([^\n]-)\n")
+        if name == "coretemp" then
+            self.cpu.path = path
+        end
+    end
+end
+
+function sysinfo.temp:update()
 end
 
 function sysinfo.connect_signal(name, callback)
@@ -146,6 +161,7 @@ function sysinfo.emit_signal(name, ...)
 end
 
 sysinfo.cpu:init()
+sysinfo.temp:init()
 sysinfo.mem:update()
 
 sysinfo.refresh_timer = gears.timer.start_new(
