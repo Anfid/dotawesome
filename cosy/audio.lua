@@ -66,7 +66,7 @@ end
 function audio:init_default_sink()
     awful.spawn.easy_async("pactl list sinks short",
         function(out)
-            self.sink = tonumber(out:match("^(%d+)%s+.*%s+IDLE\n") or out:match("^(%d+)%s+.*%s+RUNNING\n"))
+            self.sink = tonumber(out:match("(%d+)%s+[^\n]-%s+IDLE\n") or out:match("(%d+)%s+[^\n]-%s+RUNNING\n"))
             self.emit_signal("audio::volume")
         end
     )
@@ -77,9 +77,9 @@ function audio:sink_status_update()
         "pactl list sinks",
         function(out)
             for sink, mute, vol in out:gmatch(
-                    "Sink #(%d+).*"..
-                    "\n%s*Mute:%s*(%a+).*"..
-                    "\n%s*Volume:[^\n]-(%d+)%%[^\n]*\n"
+                    "Sink #(%d+).-"..
+                    "\n%s+Mute:%s*(%a+).-"..
+                    "\n%s+Volume:[^\n]-(%d+)%%[^\n]-\n"
                 ) do
                 local sink = tonumber(sink)
                 local vol = tonumber(vol)

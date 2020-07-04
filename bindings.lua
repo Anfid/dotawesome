@@ -5,7 +5,6 @@
 -- @module bindings
 ---------------------------------------------------------------------------
 
--- TODO: Set better volume control command. See volume widget for reference
 local awful = require("awful")
 local beautiful = require("beautiful")
 local gears = require("gears")
