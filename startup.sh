@@ -10,7 +10,7 @@ function run-unique {
 export LC_ALL=C
 
 setxkbmap -layout us,ru -variant colemak, -option 'grp:toggle'
-run-unique compton
+run-unique picom --experimental-backends
 run-unique dunst -conf "$HOME/.config/dunst/dunstrc"
 run-unique nm-applet
 
