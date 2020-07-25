@@ -12,7 +12,7 @@ local hotkeys_popup = require("awful.hotkeys_popup").widget
 local menu = require("menu")
 
 local global = require("global")
-local audio = require("cosy").audio
+local audio = require("cosy.system.audio")
 
 local client = _G.client
 local awesome = _G.awesome
