@@ -118,33 +118,33 @@ function _G.construct_panel(s)
         })
 
     -- Create a taglist widget
-    s.taglist = awful.widget.taglist(
-        s,
-        awful.widget.taglist.filter.noempty,
-        bindings.taglist_mouse,
-        {
+    s.taglist = awful.widget.taglist {
+        screen = s,
+        filter = awful.widget.taglist.filter.noempty,
+        buttons = bindings.taglist_mouse,
+        style = {
             align = "center",
             bg_normal = beautiful.bg_normal .. "a0",
             bg_focus = focus_gradient,
             bg_urgent = beautiful.bg_urgent .. "00",
         },
-        nil,
-        wibox.layout.fixed.vertical())
+        layout = wibox.layout.fixed.vertical()
+    }
 
     -- Create a tasklist widget
-    s.tasklist = awful.widget.tasklist(
-        s,
-        awful.widget.tasklist.filter.currenttags,
-        bindings.tasklist_mouse,
-        {
+    s.tasklist = awful.widget.tasklist {
+        screen = s,
+        filter = awful.widget.tasklist.filter.currenttags,
+        buttons = bindings.tasklist_mouse,
+        style = {
             align = "center",
             disable_task_name = true,
             bg_normal = "#00000000",
             bg_focus = focus_gradient,
             bg_urgent = beautiful.bg_urgent .. "00",
         },
-        nil,
-        wibox.layout.fixed.vertical())
+        layout = wibox.layout.fixed.vertical()
+    }
 
     s.systray = wibox.widget.systray()
 
@@ -165,7 +165,6 @@ function _G.construct_panel(s)
         { -- Left widgets
             layout = wibox.layout.fixed.vertical,
             s.taglist,
-            cosy.widget.promptbox,
         },
         s.tasklist, -- Middle widget
         { -- Right widgets
