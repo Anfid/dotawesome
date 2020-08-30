@@ -4,6 +4,7 @@ local client = _G.client
 local root = _G.root
 local tag = _G.tag
 local screen = _G.screen
+
 -- Standard awesome library
 local gears = require("gears")
 local awful = require("awful")
@@ -316,6 +317,9 @@ client.connect_signal("focus",   function(c) c.border_color = beautiful.border_f
 client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_normal end)
 -- }}}
 
--- {{{ Startup application
-awful.spawn.with_shell("~/.config/awesome/startup.sh")
+-- {{{ Startup applications
+awful.spawn.spawn("setxkbmap -layout us,ru -variant colemak, -option 'grp:toggle'")
+awful.spawn.once("picom --experimental-backends")
+awful.spawn.once("nm-applet")
+awful.spawn.once("telegram-desktop")
 -- }}}

@@ -23,39 +23,52 @@ local rules = {
             keys = bindings.keyboard.client,
             buttons = bindings.mouse.client,
             screen = awful.screen.preferred,
-            placement = awful.placement.no_overlap+awful.placement.no_offscreen
+            placement = awful.placement.no_overlap + awful.placement.no_offscreen
         }
     },
 
-    -- Floating clients.
+    -- Floating clients
     {
         rule_any = {
             instance = {
-                "DTA",  -- Firefox addon DownThemAll.
-                "copyq",  -- Includes session name in class.
+                "DTA",  -- Firefox addon DownThemAll
+                "copyq",  -- Includes session name in class
             },
 
             class = {
                 "Arandr",
                 "Gpick",
                 "Kruler",
-                "MessageWin",  -- kalarm.
+                "MessageWin",  -- kalarm
                 "Sxiv",
                 "Wpa_gui",
                 "pinentry",
                 "veromix",
-                "xtightvncviewer"},
+                "xtightvncviewer",
+            },
 
             name = {
-                "Event Tester",  -- xev.
+                "Event Tester",  -- xev
             },
 
             role = {
-                "AlarmWindow",  -- Thunderbird's calendar.
-                "pop-up",       -- e.g. Google Chrome's (detached) Developer Tools.
+                "AlarmWindow",  -- Thunderbird's calendar
+                "pop-up",       -- e.g. Google Chrome's (detached) Developer Tools
             }
         },
         properties = { floating = true }
+    },
+
+    -- Fullscreen clients
+    {
+        rule_any = {
+            class = {
+                "awesome-xephyr",
+            },
+        },
+        properties = {
+            --fullscreen = true,
+        }
     },
 
     -- Add titlebars to normal clients and dialogs
@@ -69,14 +82,14 @@ local rules = {
     -- Assign default tags
     {
         rule_any = {
-            class = {"Waterfox", "Firefox", "qutebrowser"}
+            class = { "Waterfox", "Firefox", "qutebrowser" }
         },
         properties = { screen = 1, tag = "1" }
     },
 
     {
         rule_any = {
-            class = {"TelegramDesktop", "Slack"}
+            class = { "TelegramDesktop", "Slack" }
         },
         properties = { screen = screen.count()>1 and 2 or 1, tag = screen.count() > 1 and "1" or "4" }
     },
