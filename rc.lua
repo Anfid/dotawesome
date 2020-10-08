@@ -254,7 +254,10 @@ client.connect_signal("property::geometry", function(c)
     end
 end)
 
-client.connect_signal("unmanage", function(c) floatgeoms[c.window] = nil end)
+client.connect_signal("unmanage", function(c)
+    floatgeoms[c.window] = nil
+    awful.client.focus.history.previous()
+end)
 
 -- Add a titlebar if titlebars_enabled is set to true in the rules.
 client.connect_signal("request::titlebars", function(c)
