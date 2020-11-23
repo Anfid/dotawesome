@@ -204,13 +204,13 @@ bindings.keyboard = {
         awful.key({}, "XF86AudioMute",         function() audio:volume_mute("toggle") end,
                   {description = "mute volume",               group = "media"}),
 
-        awful.key({}, "XF86AudioPlay",  function() awful.spawn("playerctl play-pause") end,
+        awful.key({}, "XF86AudioPlay",  function() awful.spawn("playerctl -p playerctld play-pause") end,
                   {description = "toggle pause",              group = "media"}),
-        awful.key({}, "XF86AudioPause", function() awful.spawn("playerctl stop")  end,
+        awful.key({}, "XF86AudioPause", function() awful.spawn("playerctl -p playerctld stop") end,
                   {description = "stop",                      group = "media"}),
-        awful.key({}, "XF86AudioNext",  function() awful.spawn("playerctl next")  end,
+        awful.key({}, "XF86AudioNext",  function() awful.spawn("playerctl -p playerctld next") end,
                   {description = "next soundtrack",           group = "media"}),
-        awful.key({}, "XF86AudioPrev",  function() awful.spawn("playerctl previous")  end,
+        awful.key({}, "XF86AudioPrev",  function() awful.spawn("playerctl -p playerctld previous") end,
                   {description = "previous soundtrack",       group = "media"})
     ),
 
