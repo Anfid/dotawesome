@@ -27,6 +27,7 @@ local cosy = require("cosy")
 local global = require("global")
 local rules = require("rules")
 local bindings = require("bindings")
+local layout = require("layout")
 
 awesome.set_preferred_icon_size(global.panel_size)
 
@@ -66,7 +67,7 @@ local floatgeoms = {}
 awful.layout.layouts = {
     awful.layout.suit.tile,
     awful.layout.suit.max,
-    cosy.layout.popup,
+    layout.popup,
     awful.layout.suit.tile.left,
     awful.layout.suit.fair,
     awful.layout.suit.floating,
@@ -208,7 +209,7 @@ client.connect_signal("manage", function (c)
 
     -- Set floating if slave window is created on popup layout
     -- TODO: Consider if more elegant solution is possible
-    if awful.layout.get(c.screen) == cosy.layout.popup
+    if awful.layout.get(c.screen) == layout.popup
         and cosy.util.table_count(c.first_tag:clients()) > 1
     then
         c.floating = true
@@ -256,7 +257,7 @@ end)
 
 client.connect_signal("unmanage", function(c)
     floatgeoms[c.window] = nil
-    awful.client.focus.history.previous()
+    awful.client.focus.byidx(-1)
 end)
 
 -- Add a titlebar if titlebars_enabled is set to true in the rules.
