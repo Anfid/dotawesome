@@ -192,9 +192,9 @@ bindings.keyboard = {
                   {description = "Interactive screenshot to clipboard", group = "media"}),
 
         -- Media Keys
-        awful.key({}, "XF86MonBrightnessUp",   function() awful.spawn("light -A 5") end,
+        awful.key({}, "XF86MonBrightnessUp",   function() awful.spawn("xbacklight -inc 5") end,
                   {description = "increase brightness level", group = "media"}),
-        awful.key({}, "XF86MonBrightnessDown", function() awful.spawn("light -U 5") end,
+        awful.key({}, "XF86MonBrightnessDown", function() awful.spawn("xbacklight -dec 5") end,
                   {description = "decrease brightness level", group = "media"}),
 
         awful.key({}, "XF86AudioRaiseVolume",  function() audio:volume_set("+2%")     end,
