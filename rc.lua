@@ -101,7 +101,7 @@ function _G.construct_panel(s)
             update_time = (screen:count() > 1) and 0.01 or 0.05
         })
 
-    s.rings = cosy.widget.desktop.rings(s, {})
+    s.rings = cosy.widget.desktop.rings(s, { x = global.panel_size + 25, y = 20 })
 
     -- Create an imagebox widget which will contain an icon indicating which layout we're using.
     -- We need one layoutbox per screen.
