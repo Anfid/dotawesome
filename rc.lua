@@ -29,6 +29,8 @@ local rules = require("rules")
 local bindings = require("bindings")
 local layout = require("layout")
 
+local d = require("cosy.dbg")
+
 awesome.set_preferred_icon_size(global.panel_size)
 
 -- {{{ Error handling
@@ -101,7 +103,11 @@ function _G.construct_panel(s)
             update_time = (screen:count() > 1) and 0.01 or 0.05
         })
 
-    s.rings = cosy.widget.desktop.rings(s, { x = global.panel_size + 25, y = 20 })
+    local panel_offset = {
+        x = global.panel_position == "left" and global.panel_size or 0,
+        y = global.panel_position == "top" and global.panel_size or 0,
+    }
+    s.rings = cosy.widget.desktop.rings(s, { x = panel_offset.x + 25, y = panel_offset.y + 20 })
 
     -- Create an imagebox widget which will contain an icon indicating which layout we're using.
     -- We need one layoutbox per screen.
@@ -116,8 +122,13 @@ function _G.construct_panel(s)
             type = "linear",
             from = {0, 0},
             to = {global.panel_size, 0},
-            stops = { {0, beautiful.bg_focus.."f0"}, {1, "#00000000"} }
+            stops = { {0, beautiful.bg_focus.."f0"}, {1, beautiful.bg_focus.."00"} }
         })
+
+    local panel_orientation =
+        (global.panel_position == "left" or global.panel_position == "right")
+        and "vertical"
+        or "horizontal"
 
     -- Create a taglist widget
     s.taglist = awful.widget.taglist {
@@ -130,7 +141,7 @@ function _G.construct_panel(s)
             bg_focus = focus_gradient,
             bg_urgent = beautiful.bg_urgent .. "00",
         },
-        layout = wibox.layout.fixed.vertical()
+        layout = wibox.layout.fixed[panel_orientation](),
     }
 
     -- Create a tasklist widget
@@ -145,7 +156,7 @@ function _G.construct_panel(s)
             bg_focus = focus_gradient,
             bg_urgent = beautiful.bg_urgent .. "00",
         },
-        layout = wibox.layout.fixed.vertical()
+        layout = wibox.layout.fixed[panel_orientation]()
     }
 
     s.systray = wibox.widget.systray()
@@ -153,24 +164,31 @@ function _G.construct_panel(s)
     -- remove old panel
     if s.panel then s.panel:remove() end
 
-    -- create new panel
-    s.panel = awful.wibar {
+    local panel_properties = {
         screen = s,
         position = global.panel_position,
-        width = global.panel_size,
         bg = beautiful.bg_normal .. "a0", -- bg with alpha
     }
 
+    if global.panel_position == "left" or global.panel_position == "right" then
+        panel_properties.width = global.panel_size
+    else
+        panel_properties.height = global.panel_size
+    end
+
+    -- create new panel
+    s.panel = awful.wibar(panel_properties)
+
     -- Add widgets to the wibox
     s.panel:setup {
-        layout = wibox.layout.align.vertical,
+        layout = wibox.layout.align[panel_orientation],
         { -- Left widgets
-            layout = wibox.layout.fixed.vertical,
+            layout = wibox.layout.fixed[panel_orientation],
             s.taglist,
         },
         s.tasklist, -- Middle widget
         { -- Right widgets
-            layout = wibox.layout.fixed.vertical,
+            layout = wibox.layout.fixed[panel_orientation],
             cosy.widget.panel.volume({
                 indicator_width = dpi(2),
                 indicator_offset = dpi(5),
