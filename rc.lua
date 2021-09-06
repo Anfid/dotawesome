@@ -100,7 +100,7 @@ function _G.construct_panel(s)
             enable_interpolation = true,
             size = global.panel_size,
             position = global.panel_position,
-            update_time = (screen:count() > 1) and 0.01 or 0.05
+            update_time = 0.05
         })
 
     local panel_offset = {
