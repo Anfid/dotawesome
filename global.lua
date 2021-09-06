@@ -12,7 +12,7 @@ local global = {
     modkey          = "Mod4",
     panel_size      = dpi(50),
     panel_position  = "left",
-    terminal        = "kitty",
+    terminal        = "kitty --single-instance",
     editor          = os.getenv("EDITOR") or "vim",
     explorer        = "ranger",
 }
